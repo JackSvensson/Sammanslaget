@@ -1,95 +1,47 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+
+import StationPage from './StationPage';
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const stationInfo = {
+    name: 'Armhävningar',
+    description: 'Gör så många armhävningar du kan på 2 minuter',
+    timeLimit: '2 minuter',
+    resultType: 'antal repetitioner',
+    instructions: [
+      'Börja i plankan position',
+      'Sänk kroppen tills bröstet nästan nuddar golvet',
+      'Pressa upp till startposition',
+      'Räkna varje fullständig repetition'
+    ]
+  };
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  const handleStationComplete = (action, data) => {
+    console.log('Station slutförd:', action, data);
+    console.log('Action:', action); // 'next' eller 'complete'
+    console.log('Data:', data); // stationId, result, stats
+    
+    // Här kan du lägga till navigation senare
+    if (action === 'next') {
+      console.log('Skulle navigera till nästa station');
+    } else if (action === 'complete') {
+      console.log('Skulle navigera till slutresultat');
+    }
+  };
+
+  const handleAbort = () => {
+    console.log('Användaren vill avbryta rundan');
+    // Här kan du lägga till navigation tillbaka till start
+  };
+
+  return (
+    <StationPage
+      stationId="1"
+      stationInfo={stationInfo}
+      isLastStation={false} // Sätt till true om du vill testa sista stationen
+      onStationComplete={handleStationComplete}
+      onAbort={handleAbort}
+    />
   );
 }
