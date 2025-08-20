@@ -40,6 +40,7 @@ export default function Map({ path, stations }) {
         height: "300px",
         width: "100%",
       }}
+      zoomControl={false}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <Polyline positions={path} color="orange" />

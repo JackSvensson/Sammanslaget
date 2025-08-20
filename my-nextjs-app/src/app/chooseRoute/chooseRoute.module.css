@@ -2,7 +2,7 @@
 
 .main {
     display: flex;
-    padding: 2.5rem;
+    padding: 1rem 2.5rem;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -40,7 +40,7 @@
     left: 0;
     width: 100%;
     height: 50px;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
     z-index: 500;
     pointer-events: none;
 }
@@ -52,20 +52,61 @@
     left: 0;
     width: 100%;
     height: 50px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
     z-index: 500;
     pointer-events: none;
+}
+
+.mapRouteName {
+    font-size: 0.75rem;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 600;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.routeInfo {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: white;
+    z-index: 600;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.routeInfo p {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.routeInfo small {
+    font-size: 0.5rem;
+    font-weight: 700;
+}
+
+.routeListWrapper {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
 }
 
 .routeList {
     list-style-type: none;
     position: relative;
+    height: 200px;
     width: 100%;
-    height: 170px;
     overflow-y: auto;
+    padding-bottom: 50px;
 }
 
-.routeList::after {
+.routeListWrapper::after {
     content: "";
     position: absolute;
     bottom: 0;

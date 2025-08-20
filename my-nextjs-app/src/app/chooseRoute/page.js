@@ -17,33 +17,54 @@ export default function ChooseRoute() {
       <h2 className={styles.mapTitle}>Välj träningsrutt</h2>
       {selectedRoute && (
         <div className={styles.mapWrapper}>
+          <h2 className={styles.mapRouteName}>
+            <Image
+              src={"/running.svg"}
+              height={25}
+              width={25}
+              alt="running person"
+            />
+            {selectedRoute.name}
+          </h2>
           <Map path={selectedRoute.path} stations={selectedRoute.stations} />
+          <div className={styles.routeInfo}>
+            <p>
+              <small>Distans</small>
+              {selectedRoute.distance}
+            </p>
+            <p>
+              <small>Tid</small>
+              {selectedRoute.time}
+            </p>
+          </div>
         </div>
       )}
-      <ul className={styles.routeList}>
-        {routes.map((r) => (
-          <li key={r.id}>
-            <button
-              onClick={() => setSelectedRoute(r)}
-              className={styles.routeButton}
-            >
-              <div className={styles.routeTextContainer}>
-                <Image
-                  src={"/route-icon.svg"}
-                  height={35}
-                  width={35}
-                  alt="Route Icon"
-                />
-                <p className={styles.routeText}>{r.name}</p>
-              </div>
-              <div className={styles.routeDistanceTime}>
-                <p className={styles.routeText}>{r.distance}</p>
-                <small className={styles.routeTime}>Cirka {r.time}</small>
-              </div>
-            </button>
-          </li>
-        ))}
-      </ul>
+      <div className={styles.routeListWrapper}>
+        <ul className={styles.routeList}>
+          {routes.map((r) => (
+            <li key={r.id}>
+              <button
+                onClick={() => setSelectedRoute(r)}
+                className={styles.routeButton}
+              >
+                <div className={styles.routeTextContainer}>
+                  <Image
+                    src={"/route-icon.svg"}
+                    height={35}
+                    width={35}
+                    alt="Route Icon"
+                  />
+                  <p className={styles.routeText}>{r.name}</p>
+                </div>
+                <div className={styles.routeDistanceTime}>
+                  <p className={styles.routeText}>{r.distance}</p>
+                  <small className={styles.routeTime}>Cirka {r.time}</small>
+                </div>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
       <button className={styles.startButton}>Starta Rutten</button>
     </main>
   );
