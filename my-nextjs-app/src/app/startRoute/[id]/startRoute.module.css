@@ -92,22 +92,46 @@
     font-weight: 700;
 }
 
-.routeListWrapper {
+.stationListWrapper {
     position: relative;
     overflow: hidden;
     width: 100%;
 }
 
-.routeList {
+.stationList {
     list-style-type: none;
     position: relative;
     height: 200px;
     width: 100%;
     overflow-y: auto;
     padding-bottom: 50px;
+    display: flex;
+    gap: 0.75rem;
+    flex-direction: column;
 }
 
-.routeListWrapper::after {
+.stationInfo {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.stationText {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: "Noto Sans", sans-serif;
+}
+
+.stationText small {
+    font-size: 0.5rem;
+    font-weight: 400;
+    font-family: "Noto Sans", sans-serif;
+}
+
+.stationListWrapper::after {
     content: "";
     position: absolute;
     bottom: 0;
@@ -119,42 +143,7 @@
     pointer-events: none;
 }
 
-.routeButton {
-    border: none;
-    background: none;
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    padding: 0.65rem;
-}
-
-.routeTextContainer {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.routeDistanceTime {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.routeText {
-    font-size: 0.75rem;
-    font-family: "Noto Sans", sans-serif;
-    color: var(--foreground);
-}
-
-.routeTime {
-    font-size: 0.5rem;
-    font-family: "Noto Sans", sans-serif;
-    align-self: flex-end;
-    color: var(--foreground);
-}
-
-.startButton {
+.stationButton {
     background-color: #F57600;
     color: white;
     border: none;

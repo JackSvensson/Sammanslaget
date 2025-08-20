@@ -5,11 +5,13 @@ import dynamic from "next/dynamic";
 import styles from "./chooseRoute.module.css";
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
 export default function ChooseRoute() {
   const [selectedRoute, setSelectedRoute] = useState(routes[0]);
+  const router = useRouter();
 
   return (
     <main className={styles.main}>
@@ -65,7 +67,12 @@ export default function ChooseRoute() {
           ))}
         </ul>
       </div>
-      <button className={styles.startButton}>Starta Rutten</button>
+      <button
+        className={styles.startButton}
+        onClick={() => router.push(`/startRoute/${selectedRoute.id}`)}
+      >
+        Starta Rutten
+      </button>
     </main>
   );
 }
