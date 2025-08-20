@@ -22,8 +22,11 @@ export default function Map({ path, stations }) {
   return (
     <MapContainer
       center={path[0]}
-      zoom={14}
-      style={{ height: "300px", width: "70%", borderRadius: "12px" }}
+      zoom={15}
+      style={{
+        height: "300px",
+        width: "100%",
+      }}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <Polyline positions={path} color="orange" />

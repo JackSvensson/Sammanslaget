@@ -1,0 +1,52 @@
+.main {
+    display: flex;
+    padding: 2.5rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.title {
+    color: #F57600;
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.5rem;
+}
+
+.mapTitle {
+    font-size: 1.125rem;
+    font-weight: 700;
+    align-self: flex-start;
+}
+
+.mapWrapper {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.mapWrapper::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+    z-index: 500;
+    pointer-events: none;
+}
+
+.mapWrapper::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
+    z-index: 500;
+    pointer-events: none;
+}
