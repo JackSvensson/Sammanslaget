@@ -44,6 +44,7 @@ export default function ChooseRoute() {
           </li>
         ))}
       </ul>
+      <button className={styles.startButton}>Starta Rutten</button>
     </main>
   );
 }
