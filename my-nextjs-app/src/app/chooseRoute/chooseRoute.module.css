@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
 .main {
     display: flex;
     padding: 2.5rem;
@@ -12,12 +14,16 @@
     font-size: 1.375rem;
     font-weight: 700;
     line-height: 1.5rem;
+    font-family: "Noto Sans", sans-serif;
+    align-self: flex-start;
 }
 
 .mapTitle {
     font-size: 1.125rem;
+    line-height: 1.375rem;
     font-weight: 700;
     align-self: flex-start;
+    font-family: "Noto Sans", sans-serif;
 }
 
 .mapWrapper {
@@ -49,4 +55,43 @@
     background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
     z-index: 500;
     pointer-events: none;
+}
+
+.routeList {
+    list-style-type: none;
+    width: 100%;
+}
+
+.routeButton {
+    border: none;
+    background: none;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.65rem;
+}
+
+.routeTextContainer {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.routeDistanceTime {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.routeText {
+    font-size: 0.75rem;
+    font-family: "Noto Sans", sans-serif;
+    padding-top: 0.25rem;
+    color: var(--foreground);
+}
+
+.routeTime {
+    font-size: 0.5rem;
+    font-family: "Noto Sans", sans-serif;
+    align-self: flex-end;
+    color: var(--foreground);
 }

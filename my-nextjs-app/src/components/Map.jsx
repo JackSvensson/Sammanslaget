@@ -3,6 +3,8 @@
 import { MapContainer, TileLayer, Polyline, Marker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { useMap } from "react-leaflet";
+import { useEffect } from "react";
 
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
@@ -19,6 +21,17 @@ if (typeof window !== "undefined") {
 }
 
 export default function Map({ path, stations }) {
+  function MapUpdater({ path }) {
+    const map = useMap();
+    useEffect(() => {
+      if (path.length) {
+        const bounds = L.latLngBounds(path);
+        map.fitBounds(bounds, { padding: [50, 50] }); // lite padding runt
+      }
+    }, [path]);
+    return null;
+  }
+
   return (
     <MapContainer
       center={path[0]}
@@ -33,6 +46,7 @@ export default function Map({ path, stations }) {
       {stations.map((station, i) => (
         <Marker key={i} position={station.position}></Marker>
       ))}
+      <MapUpdater path={path} />
     </MapContainer>
   );
 }
