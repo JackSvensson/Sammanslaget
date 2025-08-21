@@ -166,11 +166,11 @@ export default function StationPage({
       onStationComplete(stationResult, isLastStation);
     }
     
-    if (isLastStation) {
-      router.push('/results');
-    } else {
-      router.push(`/station/${station.id + 1}`);
-    }
+    // if (isLastStation) {
+    //   router.push('/results');
+    // } else {
+    //   router.push(`/station/${station.id + 1}`);
+    // }
     
     setIsSubmitting(false);
   };
