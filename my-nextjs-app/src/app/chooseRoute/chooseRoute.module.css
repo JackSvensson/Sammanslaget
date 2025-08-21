@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+.main {
+    display: flex;
+    padding: 1rem 2.5rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.title {
+    color: #F57600;
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.5rem;
+    font-family: "Noto Sans", sans-serif;
+    align-self: flex-start;
+}
+
+.mapTitle {
+    font-size: 1.125rem;
+    line-height: 1.375rem;
+    font-weight: 700;
+    align-self: flex-start;
+    font-family: "Noto Sans", sans-serif;
+}
+
+.mapWrapper {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.mapWrapper::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+    z-index: 500;
+    pointer-events: none;
+}
+
+.mapWrapper::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    z-index: 500;
+    pointer-events: none;
+}
+
+.mapRouteName {
+    font-size: 0.75rem;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 600;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+}
+
+.routeInfo {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: white;
+    z-index: 600;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.routeInfo p {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.routeInfo small {
+    font-size: 0.5rem;
+    font-weight: 700;
+}
+
+.routeListWrapper {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.routeList {
+    list-style-type: none;
+    position: relative;
+    height: 200px;
+    width: 100%;
+    overflow-y: auto;
+    padding-bottom: 50px;
+}
+
+.routeListWrapper::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(to top, var(--background), transparent);
+    z-index: 500;
+    pointer-events: none;
+}
+
+.routeButton {
+    border: none;
+    background: none;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.65rem;
+}
+
+.routeTextContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.routeDistanceTime {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.routeText {
+    font-size: 0.75rem;
+    font-family: "Noto Sans", sans-serif;
+    color: var(--foreground);
+}
+
+.routeTime {
+    font-size: 0.5rem;
+    font-family: "Noto Sans", sans-serif;
+    align-self: flex-end;
+    color: var(--foreground);
+}
+
+.startButton {
+    background-color: #F57600;
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 0.75rem 0.625rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+    font-size: 0.875rem;
+    font-weight: 700;
+}
