@@ -61,6 +61,7 @@
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
+    background: #3B82F6;
     color: white;
     border-radius: 20px;
     font-size: 12px;
@@ -299,17 +300,52 @@
     transform: scale(0.95);
   }
   
-  /* Extra reps sektion */
-  .extraRepsSection {
+  /* Extra reps och goal feedback sektion */
+  .goalFeedback {
     text-align: center;
-    font-size: 14px;
-    color: #666;
-    margin-top: 10px;
+    margin-top: 12px;
+    animation: fadeIn 0.3s ease;
   }
   
-  .extraRepsSection strong {
+  .successFeedback {
     color: #FF6B00;
+    font-size: 14px;
     font-weight: 600;
+    padding: 8px 16px;
+    background: #FFE5CC;
+    border-radius: 8px;
+    display: inline-block;
+  }
+  
+  .exactFeedback {
+    color: #1e7e34;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 16px;
+    background: #d4f4dd;
+    border-radius: 8px;
+    display: inline-block;
+  }
+  
+  .encourageFeedback {
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    display: inline-block;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   
   /* Instruktioner */
@@ -350,6 +386,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     margin-top: 20px;
+    margin-bottom: 20px; /* Mellanrum till bottomStats */
   }
   
   .completeButton:hover {
@@ -361,35 +398,42 @@
     cursor: not-allowed;
   }
   
-  /* Bottenmeny - Fixed position */
+  /* Bottenmeny - Fixed design enligt Figma */
   .bottomStats {
     position: relative;
-    width: 100%;
-    background: #FFE5CC;
-    padding: 16px 20px;
+    width: 80%;
+    background: #FFD700; /* Gul bakgrund som i Figma */
+    padding: 12px 16px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    border-top: 1px solid #FFD4A8;
-    margin-top: auto;
+    gap: 0;
+    border-radius: 12px 12px 12px 12px; /* Rundade hörn upptill */
+    margin: 0 -20px -20px -20px; /* Negativ margin för att gå ut till kanterna */
+    width: calc(100% + 40px); /* Kompensera för negativ margin */
   }
   
   .statItem {
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
   }
   
   .statItemLabel {
     font-size: 10px;
-    color: #AA6600;
+    color: #8B6914; /* Mörkare gul/brun text */
     text-transform: uppercase;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     font-weight: 600;
+    letter-spacing: 0.5px;
   }
   
   .statItemValue {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
-    color: #FF6B00;
+    color: #1a1a1a; /* Mörk text för värden */
   }
   
   /* Loading state */

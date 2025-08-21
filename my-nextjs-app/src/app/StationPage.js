@@ -88,6 +88,8 @@ export default function StationPage({
   // Extra reps tracking
   const [extraReps, setExtraReps] = useState(0);
   const [showExtraReps, setShowExtraReps] = useState(false);
+  const [targetGoal] = useState(10); // Målet att slå
+  const [showGoalFeedback, setShowGoalFeedback] = useState(false);
 
   useEffect(() => {
     // Hämta station baserat på ID
@@ -136,15 +138,52 @@ export default function StationPage({
   };
 
   const handleIncrement = () => {
-    setResult(prev => prev + 1);
+    setResult(prev => {
+      const newValue = prev + 1;
+      checkGoalProgress(newValue);
+      return newValue;
+    });
   };
 
   const handleDecrement = () => {
-    setResult(prev => Math.max(0, prev - 1));
+    setResult(prev => {
+      const newValue = Math.max(0, prev - 1);
+      checkGoalProgress(newValue);
+      return newValue;
+    });
+  };
+
+  const checkGoalProgress = (currentResult) => {
+    if (station?.type === 'reps') {
+      setShowGoalFeedback(true);
+      if (currentResult > targetGoal) {
+        const extra = currentResult - targetGoal;
+        setExtraReps(extra);
+        setShowExtraReps(true);
+      } else {
+        setShowExtraReps(false);
+        setExtraReps(0);
+      }
+    }
   };
 
   const handleCompleteStation = async () => {
     setIsSubmitting(true);
+    
+    // Visa alltid feedback när man klickar på klar
+    if (station.type === 'reps') {
+      checkGoalProgress(result);
+    } else if (station.type === 'timer' && time > 0) {
+      // För timer, kolla om tiden är bättre än målet (50 sekunder)
+      if (time > 50) {
+        setExtraReps(time - 50);
+        setShowExtraReps(true);
+      }
+      setShowGoalFeedback(true);
+    }
+    
+    // Vänta lite så användaren hinner se feedback
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
     // Spara resultat
     const stationResult = {
@@ -155,9 +194,6 @@ export default function StationPage({
       extraReps: extraReps,
       timestamp: new Date().toISOString()
     };
-    
-    // Simulera API-anrop
-    await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Avgör om det är sista stationen
     const isLastStation = station.id === STATIONS.length;
@@ -181,11 +217,11 @@ export default function StationPage({
   };
 
   useEffect(() => {
-    // Automatisk extra reps när man går över 10
-    if (result > 10 && !showExtraReps && station?.type === 'reps') {
-      handleExtraReps();
+    // Automatisk check när result ändras
+    if (station?.type === 'reps') {
+      checkGoalProgress(result);
     }
-  }, [result, showExtraReps, station]);
+  }, [result, station]);
 
   if (!station) {
     return (
@@ -200,12 +236,20 @@ export default function StationPage({
       <div className={styles.phoneContainer}>
         {/* Status bar */}
         <div className={styles.statusBar}>
+          <span className={styles.statusBarTime}>9:41</span>
+          <div className={styles.statusBarIcons}>
+            <span>📶</span>
+            <span>📶</span>
+            <span>🔋</span>
+          </div>
         </div>
 
         {/* App header */}
         <header className={styles.appHeader}>
           <div className={styles.appLogo}>LindMotion</div>
           <div className={styles.stationIndicator}>
+            <span>📊</span>
+            <span>STATION {station.id}</span>
           </div>
         </header>
 
@@ -267,8 +311,20 @@ export default function StationPage({
                 )}
               </div>
               {!isRunning && time > 0 && (
-                <div className={styles.extraRepsSection}>
-                  <strong>+ 2 sekunder Bra jobbat!</strong>
+                <div className={styles.goalFeedback}>
+                  {time > 50 ? (
+                    <div className={styles.successFeedback}>
+                      <strong>+ {time - 50} sekunder Bra jobbat!</strong>
+                    </div>
+                  ) : time === 50 ? (
+                    <div className={styles.exactFeedback}>
+                      <strong>Perfekt! Du nådde målet!</strong>
+                    </div>
+                  ) : (
+                    <div className={styles.encourageFeedback}>
+                      <strong>{50 - time} sekunder kvar till målet</strong>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -278,7 +334,7 @@ export default function StationPage({
           {station.type === 'reps' && (
             <div className={styles.resultSection}>
               <label className={styles.resultLabel}>
-                Att slå: <strong>10 {station.unit}</strong>
+                Att slå: <strong>{targetGoal} {station.unit}</strong>
               </label>
               <div className={styles.resultInputContainer}>
                 <button 
@@ -299,9 +355,23 @@ export default function StationPage({
                   +
                 </button>
               </div>
-              {showExtraReps && (
-                <div className={styles.extraRepsSection}>
-                  <strong>+ {extraReps} reps Bra jobbat!</strong>
+              
+              {/* Feedback om målet */}
+              {showGoalFeedback && (
+                <div className={styles.goalFeedback}>
+                  {result > targetGoal ? (
+                    <div className={styles.successFeedback}>
+                      <strong>+ {result - targetGoal} reps Bra jobbat!</strong>
+                    </div>
+                  ) : result === targetGoal ? (
+                    <div className={styles.exactFeedback}>
+                      <strong>Perfekt! Du nådde målet!</strong>
+                    </div>
+                  ) : (
+                    <div className={styles.encourageFeedback}>
+                      <strong>{targetGoal - result} reps kvar till målet</strong>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
