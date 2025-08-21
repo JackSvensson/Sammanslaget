@@ -200,20 +200,12 @@ export default function StationPage({
       <div className={styles.phoneContainer}>
         {/* Status bar */}
         <div className={styles.statusBar}>
-          <span className={styles.statusBarTime}>9:41</span>
-          <div className={styles.statusBarIcons}>
-            <span>📶</span>
-            <span>📶</span>
-            <span>🔋</span>
-          </div>
         </div>
 
         {/* App header */}
         <header className={styles.appHeader}>
           <div className={styles.appLogo}>LindMotion</div>
           <div className={styles.stationIndicator}>
-            <span>📊</span>
-            <span>STATION {station.id}</span>
           </div>
         </header>
 
