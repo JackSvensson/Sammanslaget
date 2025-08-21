@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import styles from "./results.module.css";
 
 export default function ResultsPage() {
@@ -9,6 +10,7 @@ export default function ResultsPage() {
   const [stats, setStats] = useState(null);
   const [badges, setBadges] = useState([]);
   const [stationResults, setStationResults] = useState([]);
+  const [endTime, setEndTime] = useState("");
 
   useEffect(() => {
     // Simulerad data - ersätt med riktig data från localStorage eller API
@@ -25,15 +27,23 @@ export default function ResultsPage() {
     };
 
     const mockStationResults = [
-      { id: 1, name: "Armhävningar", result: 12, unit: "reps", isBest: false, isWorst: true },
-      { id: 2, name: "Jägarvila", result: 50, unit: "sek", isBest: false, isWorst: false },
-      { id: 3, name: "Plankan", result: 85, unit: "sek", isBest: true, isWorst: false },
-      { id: 4, name: "Burpees", result: 18, unit: "reps", isBest: false, isWorst: false },
-      { id: 5, name: "Sit-ups", result: 25, unit: "reps", isBest: false, isWorst: false },
+      { id: 1, name: "Armhävningar", result: 12, unit: "reps", goal: 10, points: 2, isBest: false, isWorst: false },
+      { id: 2, name: "Jägarvila", result: 50, unit: "sek", goal: 50, points: 0, isBest: false, isWorst: false },
+      { id: 3, name: "Plankan", result: 85, unit: "sek", goal: 60, points: 25, isBest: true, isWorst: false },
+      { id: 4, name: "Burpees", result: 18, unit: "reps", goal: 8, points: 10, isBest: false, isWorst: false },
+      { id: 5, name: "Sit-ups", result: 25, unit: "reps", goal: 20, points: 5, isBest: false, isWorst: false },
     ];
+
+    // Beräkna sluttid
+    const now = new Date();
+    const endTimeString = now.toLocaleTimeString('sv-SE', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
 
     setStats(mockStats);
     setStationResults(mockStationResults);
+    setEndTime(endTimeString);
 
     // Badge-logik
     const newBadges = [];
@@ -69,15 +79,11 @@ export default function ResultsPage() {
 
   const handleNewRound = () => {
     localStorage.removeItem("finalStats");
+    localStorage.removeItem("nextStation");
+    localStorage.removeItem("currentRoute");
+    localStorage.removeItem("currentTime");
+    localStorage.removeItem("completedStations");
     router.push("/");
-  };
-
-  const handleShare = () => {
-    alert("Delningsfunktion kommer snart!");
-  };
-
-  const handleViewHistory = () => {
-    router.push("/history");
   };
 
   if (!stats) {
@@ -100,98 +106,73 @@ export default function ResultsPage() {
               <p className={styles.subtitle}>Bra jobbat! Här är din sammanfattning</p>
             </header>
 
-            {/* Huvudpoäng */}
+            {/* Huvudpoäng med cirkel */}
             <section className={styles.summarySection}>
-              <div className={styles.totalScore}>
-                {stats.currentRoundStats.totalScore}
+              <div className={styles.scoreCircleContainer}>
+                <div className={styles.scoreCircleBackground}>
+                  <Image 
+                    src="/exercises/ResultCircle.svg" 
+                    alt="Result Circle"
+                    width={180}
+                    height={180}
+                    className={styles.scoreCircleImage}
+                  />
+                </div>
+                <div className={styles.scoreOverlay}>
+                  <div className={styles.totalScore}>
+                    {stats.currentRoundStats.totalScore}
+                  </div>
+                  <div className={styles.scoreLabel}>poäng</div>
+                </div>
               </div>
-              <div className={styles.scoreLabel}>Total poäng</div>
             </section>
-
-            {/* Statistik-kort */}
-            <div className={styles.statsGrid}>
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>⏱️</div>
-                <div className={styles.statLabel}>Total tid</div>
-                <div className={styles.statValue}>
-                  {formatTime(stats.currentRoundStats.totalTime)}
-                </div>
-              </div>
-
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>📊</div>
-                <div className={styles.statLabel}>Genomsnitt</div>
-                <div className={styles.statValue}>
-                  {stats.currentRoundStats.averageScore}
-                  <span className={styles.statUnit}> poäng</span>
-                </div>
-              </div>
-
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>✅</div>
-                <div className={styles.statLabel}>Genomförda</div>
-                <div className={styles.statValue}>
-                  {stats.completedStations}/{stats.totalStations}
-                  <span className={styles.statUnit}> stationer</span>
-                </div>
-              </div>
-
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>🎯</div>
-                <div className={styles.statLabel}>Träffprocent</div>
-                <div className={styles.statValue}>
-                  {Math.round((stats.completedStations / stats.totalStations) * 100)}
-                  <span className={styles.statUnit}>%</span>
-                </div>
-              </div>
-            </div>
 
             {/* Stationsresultat */}
             <section className={styles.performanceSection}>
               <h2 className={styles.sectionTitle}>Stationsresultat</h2>
               <div className={styles.stationsList}>
                 {stationResults.map((station) => (
-                  <div key={station.id} className={styles.stationItem}>
-                    <div className={styles.stationInfo}>
+                  <div key={station.id} className={styles.stationCard}>
+                    <div className={styles.stationHeader}>
                       <div className={styles.stationNumber}>{station.id}</div>
                       <div className={styles.stationName}>{station.name}</div>
+                      <div className={styles.stationPoints}>
+                        {station.points > 0 ? `+${station.points}` : station.points} poäng
+                      </div>
                     </div>
-                    <div className={styles.stationResult}>
-                      <span className={styles.resultValue}>{station.result}</span>
-                      <span className={styles.resultUnit}>{station.unit}</span>
-                      {station.isBest && (
-                        <span className={`${styles.resultBadge} ${styles.best}`}>
-                          Bäst
-                        </span>
-                      )}
-                      {station.isWorst && (
-                        <span className={`${styles.resultBadge} ${styles.worst}`}>
-                          Sämst
-                        </span>
-                      )}
+                    <div className={styles.stationDetails}>
+                      <div className={styles.stationResult}>
+                        Resultat: <strong>{station.result} {station.unit}</strong>
+                      </div>
+                      <div className={styles.stationGoal}>
+                        Mål: {station.goal} {station.unit}
+                      </div>
                     </div>
+                    {station.isBest && (
+                      <div className={`${styles.resultBadge} ${styles.best}`}>
+                        Bäst
+                      </div>
+                    )}
+                    {station.isWorst && (
+                      <div className={`${styles.resultBadge} ${styles.worst}`}>
+                        Sämst
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </section>
 
+            {/* Sluttid */}
+            <section className={styles.endTimeSection}>
+              <div className={styles.endTimeCard}>
+                <div className={styles.endTimeLabel}>Sluttid</div>
+                <div className={styles.endTimeValue}>{endTime}</div>
+              </div>
+            </section>
+
             {/* Badges */}
-            {badges.length > 0 && (
-              <section className={styles.badgesSection}>
-                <h2 className={styles.sectionTitle}>Utmärkelser</h2>
-                <div className={styles.badgesGrid}>
-                  {badges.map((badge, index) => (
-                    <div
-                      key={index}
-                      className={`${styles.badge} ${styles[badge.type]}`}
-                    >
-                      <div className={styles.badgeIcon}>{badge.icon}</div>
-                      <div className={styles.badgeTitle}>{badge.title}</div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
+            
 
             {/* Åtgärdsknappar */}
             <div className={styles.actionButtons}>
@@ -199,19 +180,7 @@ export default function ResultsPage() {
                 onClick={handleNewRound}
                 className={`${styles.button} ${styles.primaryButton}`}
               >
-                🔄 Ny runda
-              </button>
-              <button
-                onClick={handleShare}
-                className={`${styles.button} ${styles.secondaryButton}`}
-              >
-                📤 Dela resultat
-              </button>
-              <button
-                onClick={handleViewHistory}
-                className={`${styles.button} ${styles.tertiaryButton}`}
-              >
-                📊 Se historik
+                 Ny runda
               </button>
             </div>
           </div>

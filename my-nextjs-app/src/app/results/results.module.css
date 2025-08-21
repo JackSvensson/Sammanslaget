@@ -54,177 +54,88 @@
   font-weight: 400;
 }
 
-/* Stor orange kort för total poäng */
+/* Orange cirkel för total poäng */
 .summarySection {
-  background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
-  border-radius: 20px;
-  padding: 30px;
-  color: white;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.2);
+}
+
+.scoreCircleContainer {
+  position: relative;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+.scoreCircleBackground {
+  position: relative;
+}
+
+.scoreCircleImage {
+  display: block;
+}
+
+.scoreOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
 }
 
 .totalScore {
-  font-size: 56px;
+  font-size: 48px;
   font-weight: 700;
   margin-bottom: 5px;
   line-height: 1;
 }
 
 .scoreLabel {
-  font-size: 14px;
+  font-size: 16px;
   opacity: 0.9;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-/* Statistik ikoner rad */
-.statsRow {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 25px;
-  padding: 0 10px;
-}
-
-.statItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
-
-.statIcon {
-  width: 50px;
-  height: 50px;
-  background: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 8px;
-  font-size: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.statLabel {
-  font-size: 11px;
-  color: #999;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-bottom: 4px;
-}
-
-.statValue {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1a1a1a;
-}
-
-.statUnit {
-  font-size: 11px;
-  color: #999;
-  margin-left: 2px;
-}
-
-/* Checkmark för genomfört */
-.completedCheck {
-  width: 60px;
-  height: 60px;
-  background: #4CAF50;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-  font-size: 30px;
-  color: white;
-}
-
-/* Träffprocent cirkel */
-.percentageSection {
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-.percentageCircle {
-  width: 100px;
-  height: 100px;
-  background: #f5f5f5;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 10px;
-  font-size: 28px;
-  font-weight: 700;
-  color: #333;
-  border: 4px solid #4CAF50;
-}
-
-.percentageLabel {
-  font-size: 12px;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Stationsresultat */
-.stationsSection {
+/* Stationsresultat - Orange kort */
+.performanceSection {
   margin-bottom: 25px;
 }
 
 .sectionTitle {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: #1a1a1a;
   margin-bottom: 15px;
-  padding-left: 15px;
-  position: relative;
-}
-
-.sectionTitle::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 18px;
-  background: #FF6B00;
-  border-radius: 2px;
+  text-align: center;
 }
 
 .stationsList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
-.stationItem {
+.stationCard {
+  background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
+  border-radius: 16px;
+  padding: 16px;
+  color: white;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
+}
+
+.stationHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 15px;
-  background: #f9f9f9;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-}
-
-.stationItem:hover {
-  background: #f0f0f0;
-}
-
-.stationInfo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .stationNumber {
   width: 32px;
   height: 32px;
-  background: #FF6B00;
+  background: rgba(255, 255, 255, 0.2);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -235,30 +146,40 @@
 }
 
 .stationName {
+  font-size: 16px;
+  font-weight: 600;
+  flex: 1;
+  margin-left: 12px;
+}
+
+.stationPoints {
   font-size: 14px;
-  color: #333;
-  font-weight: 500;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.stationDetails {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  opacity: 0.9;
 }
 
 .stationResult {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-weight: 500;
 }
 
-.resultValue {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a1a1a;
-}
-
-.resultUnit {
-  font-size: 12px;
-  color: #999;
+.stationGoal {
+  font-weight: 400;
 }
 
 .resultBadge {
-  padding: 3px 8px;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
   border-radius: 12px;
   font-size: 10px;
   font-weight: 600;
@@ -266,13 +187,41 @@
 }
 
 .resultBadge.best {
-  background: #d4f4dd;
-  color: #1e7e34;
+  background: rgba(76, 175, 80, 0.9);
+  color: white;
 }
 
 .resultBadge.worst {
-  background: #ffe4e1;
-  color: #dc3545;
+  background: rgba(244, 67, 54, 0.9);
+  color: white;
+}
+
+/* Sluttid sektion */
+.endTimeSection {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.endTimeCard {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 16px;
+  display: inline-block;
+  min-width: 120px;
+}
+
+.endTimeLabel {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.endTimeValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
 }
 
 /* Badges/Utmärkelser */
@@ -314,21 +263,6 @@
 
 .badge.bronze {
   background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);
-  color: white;
-}
-
-.badge.pink {
-  background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
-  color: white;
-}
-
-.badge.blue {
-  background: linear-gradient(135deg, #00BFFF 0%, #1E90FF 100%);
-  color: white;
-}
-
-.badge.orange {
-  background: linear-gradient(135deg, #FFA500 0%, #FF6347 100%);
   color: white;
 }
 
@@ -375,33 +309,6 @@
   background: #e55a00;
 }
 
-.secondaryButton {
-  background: white;
-  color: #FF6B00;
-  border: 2px solid #FF6B00;
-}
-
-.secondaryButton:hover {
-  background: #fff5f0;
-}
-
-.tertiaryButton {
-  background: #f5f5f5;
-  color: #666;
-  border: 1px solid #e0e0e0;
-}
-
-.tertiaryButton:hover {
-  background: #ececec;
-}
-
-/* Mörkt tema wrapper för Figma-style */
-@media (min-width: 768px) {
-  .resultsPage {
-    background: #2c2c2c;
-  }
-}
-
 /* Mobil vy utan frame */
 @media (max-width: 767px) {
   .resultsPage {
@@ -418,6 +325,6 @@
   }
   
   .totalScore {
-    font-size: 48px;
+    font-size: 40px;
   }
 }

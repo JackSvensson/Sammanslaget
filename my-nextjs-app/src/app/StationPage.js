@@ -15,6 +15,7 @@ const STATIONS = [
     description: 'Gör så många armhävningar du kan',
     image: '/exercises/pushup.svg',
     hasPlayButton: true,
+    goal: 10,
     instructions: [
       'Starta i plankan med raka armar',
       'Sänk kroppen tills bröstet nästan nuddar golvet',
@@ -30,6 +31,7 @@ const STATIONS = [
     description: 'Håll positionen så länge du kan',
     image: '/exercises/wallsit.svg',
     hasPlayButton: false,
+    goal: 50,
     instructions: [
       'Sitt med ryggen mot väggen',
       'Böj knäna i 90 graders vinkel',
@@ -45,6 +47,7 @@ const STATIONS = [
     description: 'Alternera mellan höger och vänster ben',
     image: '/exercises/stepup.svg',
     hasPlayButton: false,
+    goal: 15,
     instructions: [
       'Ställ dig framför en bänk eller låda',
       'Steg upp med höger fot',
@@ -60,6 +63,7 @@ const STATIONS = [
     description: 'Fullständiga burpees med hopp',
     image: '/exercises/burpees.svg',
     hasPlayButton: true,
+    goal: 8,
     instructions: [
       'Starta stående',
       'Gå ner i planka',
@@ -79,6 +83,7 @@ export default function StationPage({
   const [station, setStation] = useState(null);
   const [result, setResult] = useState(12);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   
   // Timer states för Jägarvila
   const [time, setTime] = useState(0);
@@ -88,7 +93,6 @@ export default function StationPage({
   // Extra reps tracking
   const [extraReps, setExtraReps] = useState(0);
   const [showExtraReps, setShowExtraReps] = useState(false);
-  const [targetGoal] = useState(10); // Målet att slå
   const [showGoalFeedback, setShowGoalFeedback] = useState(false);
 
   useEffect(() => {
@@ -156,14 +160,24 @@ export default function StationPage({
   const checkGoalProgress = (currentResult) => {
     if (station?.type === 'reps') {
       setShowGoalFeedback(true);
-      if (currentResult > targetGoal) {
-        const extra = currentResult - targetGoal;
+      if (currentResult > station.goal) {
+        const extra = currentResult - station.goal;
         setExtraReps(extra);
         setShowExtraReps(true);
       } else {
         setShowExtraReps(false);
         setExtraReps(0);
       }
+    }
+  };
+
+  const calculatePoints = (result, goal) => {
+    if (result > goal) {
+      return result - goal; // Bonuspoäng
+    } else if (result === goal) {
+      return 0; // Exakt målet
+    } else {
+      return goal - result; // Minuspoäng (negativ)
     }
   };
 
@@ -174,9 +188,9 @@ export default function StationPage({
     if (station.type === 'reps') {
       checkGoalProgress(result);
     } else if (station.type === 'timer' && time > 0) {
-      // För timer, kolla om tiden är bättre än målet (50 sekunder)
-      if (time > 50) {
-        setExtraReps(time - 50);
+      // För timer, kolla om tiden är bättre än målet
+      if (time > station.goal) {
+        setExtraReps(time - station.goal);
         setShowExtraReps(true);
       }
       setShowGoalFeedback(true);
@@ -185,12 +199,18 @@ export default function StationPage({
     // Vänta lite så användaren hinner se feedback
     await new Promise(resolve => setTimeout(resolve, 1500));
     
+    // Beräkna poäng
+    const finalResult = station.type === 'timer' ? time : result;
+    const points = calculatePoints(finalResult, station.goal);
+    
     // Spara resultat
     const stationResult = {
       stationId: station.id,
       name: station.name,
-      result: station.type === 'timer' ? time : result,
+      result: finalResult,
       unit: station.unit,
+      goal: station.goal,
+      points: points,
       extraReps: extraReps,
       timestamp: new Date().toISOString()
     };
@@ -201,12 +221,6 @@ export default function StationPage({
     if (onStationComplete) {
       onStationComplete(stationResult, isLastStation);
     }
-    
-    // if (isLastStation) {
-    //   router.push('/results');
-    // } else {
-    //   router.push(`/station/${station.id + 1}`);
-    // }
     
     setIsSubmitting(false);
   };
@@ -234,23 +248,9 @@ export default function StationPage({
   return (
     <div className={styles.stationPage}>
       <div className={styles.phoneContainer}>
-        {/* Status bar */}
-        <div className={styles.statusBar}>
-          <span className={styles.statusBarTime}>9:41</span>
-          <div className={styles.statusBarIcons}>
-            <span>📶</span>
-            <span>📶</span>
-            <span>🔋</span>
-          </div>
-        </div>
-
         {/* App header */}
         <header className={styles.appHeader}>
           <div className={styles.appLogo}>LindMotion</div>
-          <div className={styles.stationIndicator}>
-            <span>📊</span>
-            <span>STATION {station.id}</span>
-          </div>
         </header>
 
         {/* Main content */}
@@ -291,7 +291,22 @@ export default function StationPage({
           {/* Timer för Jägarvila */}
           {station.type === 'timer' && (
             <div className={styles.timerSection}>
-              <div className={styles.timerLabel}>Tid att slå:</div>
+              <div className={styles.timerLabel}>Tid att slå: {station.goal} sek</div>
+
+              {/* Poängräkning med frågetecken för timer */}
+              <div className={styles.pointCalculation}>
+                <span className={styles.pointsLabel}>
+                  Poängräkning: {calculatePoints(time, station.goal)} poäng
+                </span>
+                <button 
+                  className={styles.questionButton}
+                  onClick={() => setShowTooltip(true)}
+                  aria-label="Information om poängräkning"
+                >
+                  ?
+                </button>
+              </div>
+
               <div className={styles.timerDisplay}>{formatTime(time)}</div>
               <div className={styles.timerControls}>
                 {!isRunning ? (
@@ -312,17 +327,17 @@ export default function StationPage({
               </div>
               {!isRunning && time > 0 && (
                 <div className={styles.goalFeedback}>
-                  {time > 50 ? (
+                  {time > station.goal ? (
                     <div className={styles.successFeedback}>
-                      <strong>+ {time - 50} sekunder Bra jobbat!</strong>
+                      <strong>+ {time - station.goal} sekunder Bra jobbat!</strong>
                     </div>
-                  ) : time === 50 ? (
+                  ) : time === station.goal ? (
                     <div className={styles.exactFeedback}>
                       <strong>Perfekt! Du nådde målet!</strong>
                     </div>
                   ) : (
                     <div className={styles.encourageFeedback}>
-                      <strong>{50 - time} sekunder kvar till målet</strong>
+                      <strong>{station.goal - time} sekunder kvar till målet</strong>
                     </div>
                   )}
                 </div>
@@ -334,8 +349,23 @@ export default function StationPage({
           {station.type === 'reps' && (
             <div className={styles.resultSection}>
               <label className={styles.resultLabel}>
-                Att slå: <strong>{targetGoal} {station.unit}</strong>
+                Att slå: <strong>{station.goal} {station.unit}</strong>
               </label>
+
+              {/* Poängräkning med frågetecken */}
+              <div className={styles.pointCalculation}>
+                <span className={styles.pointsLabel}>
+                  Poängräkning: {calculatePoints(result, station.goal)} poäng
+                </span>
+                <button 
+                  className={styles.questionButton}
+                  onClick={() => setShowTooltip(true)}
+                  aria-label="Information om poängräkning"
+                >
+                  ?
+                </button>
+              </div>
+
               <div className={styles.resultInputContainer}>
                 <button 
                   className={styles.resultButton}
@@ -359,17 +389,17 @@ export default function StationPage({
               {/* Feedback om målet */}
               {showGoalFeedback && (
                 <div className={styles.goalFeedback}>
-                  {result > targetGoal ? (
+                  {result > station.goal ? (
                     <div className={styles.successFeedback}>
-                      <strong>+ {result - targetGoal} reps Bra jobbat!</strong>
+                      <strong>+ {result - station.goal} reps Bra jobbat!</strong>
                     </div>
-                  ) : result === targetGoal ? (
+                  ) : result === station.goal ? (
                     <div className={styles.exactFeedback}>
                       <strong>Perfekt! Du nådde målet!</strong>
                     </div>
                   ) : (
                     <div className={styles.encourageFeedback}>
-                      <strong>{targetGoal - result} reps kvar till målet</strong>
+                      <strong>{station.goal - result} reps kvar till målet</strong>
                     </div>
                   )}
                 </div>
@@ -417,6 +447,33 @@ export default function StationPage({
             </div>
           </div>
         </main>
+
+        {/* Tooltip/Popup för poängräkning */}
+        {showTooltip && (
+          <>
+            <div className={styles.tooltipOverlay} onClick={() => setShowTooltip(false)} />
+            <div className={styles.tooltip}>
+              <h3 className={styles.tooltipTitle}>Resultatbaserat poängsystem</h3>
+              <div className={styles.tooltipContent}>
+                <div className={styles.tooltipItem}>
+                  <strong>Mer än målet</strong> = bonuspoäng
+                </div>
+                <div className={styles.tooltipItem}>
+                  <strong>Exakt målet</strong> = 0 poäng
+                </div>
+                <div className={styles.tooltipItem}>
+                  <strong>Mindre än målet</strong> = minuspoäng
+                </div>
+              </div>
+              <button 
+                className={styles.closeTooltip}
+                onClick={() => setShowTooltip(false)}
+              >
+                Stäng
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

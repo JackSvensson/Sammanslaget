@@ -14,16 +14,9 @@ export default function Home() {
   return (
     <div className={styles.homePage}>
       <div className={styles.phoneContainer}>
-        {/* Status bar */}
-        <div className={styles.statusBar}>
-          <span className={styles.statusBarTime}>9:41</span>
-          <div className={styles.statusBarIcons}>
-            <span>📶</span>
-            <span>📶</span>
-            <span>🔋</span>
-          </div>
-        </div>
-
+        {/* Empty status bar space */}
+        <div className={styles.statusBarSpace}></div>
+        
         {/* Huvudinnehåll med bakgrundsbild */}
         <main className={styles.mainContent}>
           {/* Bakgrundsbild */}

@@ -19,34 +19,13 @@
     flex-direction: column;
   }
   
-  /* Status bar (tid, batteri etc) */
-  .statusBar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 20px;
-    background: white;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  
-  .statusBarTime {
-    font-weight: 600;
-  }
-  
-  .statusBarIcons {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-  }
-  
   /* Header med LindMotion */
   .appHeader {
     background: white;
     padding: 16px 20px;
     border-bottom: 1px solid #e5e5e5;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
   }
   
@@ -54,18 +33,6 @@
     font-size: 20px;
     font-weight: 700;
     color: #FF6B00;
-  }
-  
-  .stationIndicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    background: #3B82F6;
-    color: white;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
   }
   
   /* Huvudinnehåll */
@@ -298,6 +265,107 @@
   
   .resultButton:active {
     transform: scale(0.95);
+  }
+
+  /* Poängräkning sektion */
+  .pointCalculation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .pointsLabel {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+  }
+
+  .questionButton {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #FF6B00;
+    color: white;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .questionButton:hover {
+    background: #e55a00;
+    transform: scale(1.1);
+  }
+
+  /* Tooltip/Popup */
+  .tooltip {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-width: 280px;
+    width: 90%;
+  }
+
+  .tooltipOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .tooltipTitle {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .tooltipContent {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .tooltipItem {
+    margin-bottom: 8px;
+  }
+
+  .tooltipItem:last-child {
+    margin-bottom: 0;
+  }
+
+  .closeTooltip {
+    width: 100%;
+    padding: 12px;
+    background: #FF6B00;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 16px;
+    cursor: pointer;
+  }
+
+  .closeTooltip:hover {
+    background: #e55a00;
   }
   
   /* Extra reps och goal feedback sektion */
