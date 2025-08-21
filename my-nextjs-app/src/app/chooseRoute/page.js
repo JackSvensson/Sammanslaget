@@ -21,14 +21,18 @@ export default function ChooseRoute() {
         <div className={styles.mapWrapper}>
           <h2 className={styles.mapRouteName}>
             <Image
-              src={"/running.svg"}
+              src={"/Running.svg"}
               height={25}
               width={25}
               alt="running person"
             />
             {selectedRoute.name}
           </h2>
-          <Map path={selectedRoute.path} stations={selectedRoute.stations} />
+          <Map
+            path={selectedRoute.path}
+            stations={selectedRoute.stations}
+            start={selectedRoute.start}
+          />
           <div className={styles.routeInfo}>
             <p>
               <small>Distans</small>
@@ -69,7 +73,13 @@ export default function ChooseRoute() {
       </div>
       <button
         className={styles.startButton}
-        onClick={() => router.push(`/startRoute/${selectedRoute.id}`)}
+        onClick={() => {
+          localStorage.setItem("currentRoute", selectedRoute.id);
+          localStorage.setItem("nextStation", selectedRoute.stations[0].id); // Ändrat
+          localStorage.setItem("currentTime", "0");
+          localStorage.setItem("completedStations", JSON.stringify([]));
+          router.push(`/startRoute/${selectedRoute.id}`);
+        }}
       >
         Starta Rutten
       </button>
