@@ -65,6 +65,34 @@
     width: fit-content;
     display: block;
   }
+
+  /* Record notification */
+  .recordNotification {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #1a1a1a;
+    text-align: center;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    animation: recordPulse 0.6s ease-in-out;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  }
+
+  @keyframes recordPulse {
+    0% {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
   
   /* Övningsbild/illustration */
   .exerciseIllustration {

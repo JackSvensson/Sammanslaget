@@ -17,39 +17,60 @@ export default function StartRoutePage({ params }) {
   const [seconds, setSeconds] = useState(0);
   const [nextStationIndex, setNextStationIndex] = useState(0);
   const [completedStations, setCompletedStations] = useState([]);
+  const [totalPoints, setTotalPoints] = useState(0);
 
   useEffect(() => {
     if (!route) return;
 
     localStorage.setItem("currentRoute", route.id);
 
+    // Kolla om detta är en ny runda eller fortsättning
     const storedNextStation = localStorage.getItem("nextStation");
-
-    if (storedNextStation === "done") {
-      setNextStationIndex(route.stations.length);
-    } else if (storedNextStation === "last") {
-      setNextStationIndex(route.stations.length - 1);
-    } else {
-      const index = route.stations.findIndex(
-        (s) => s.id === parseInt(storedNextStation || route.stations[0].id, 10)
-      );
-      setNextStationIndex(index >= 0 ? index : 0);
-    }
-
     const storedTime = parseInt(localStorage.getItem("currentTime") || "0", 10);
-    setSeconds(storedTime);
+    const storedCompleted = JSON.parse(localStorage.getItem("completedStations") || "[]");
+    const storedStats = JSON.parse(localStorage.getItem('currentStats') || '{"points": 0, "time": 0}');
 
-    const storedCompleted = JSON.parse(
-      localStorage.getItem("completedStations") || "[]"
-    );
-    setCompletedStations(storedCompleted);
+    // Om det inte finns någon sparad session, starta ny
+    if (!storedNextStation || storedNextStation === "done") {
+      // Ny runda - rensa gamla data och starta om
+      localStorage.setItem("currentTime", "0");
+      localStorage.setItem("nextStation", route.stations[0].id.toString());
+      localStorage.setItem("completedStations", "[]");
+      localStorage.setItem('currentStats', '{"points": 0, "time": 0}');
+      localStorage.removeItem('stationResults');
+      
+      setSeconds(0);
+      setNextStationIndex(0);
+      setCompletedStations([]);
+      setTotalPoints(0);
+    } else {
+      // Fortsätt befintlig session
+      if (storedNextStation === "last") {
+        setNextStationIndex(route.stations.length - 1);
+      } else {
+        const index = route.stations.findIndex(
+          (s) => s.id === parseInt(storedNextStation || route.stations[0].id, 10)
+        );
+        setNextStationIndex(index >= 0 ? index : 0);
+      }
+
+      setSeconds(storedTime);
+      setCompletedStations(storedCompleted);
+      setTotalPoints(storedStats.points);
+    }
   }, [route]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setSeconds((prev) => {
         const newTime = prev + 1;
-        localStorage.setItem("currentTime", newTime);
+        localStorage.setItem("currentTime", newTime.toString());
+        
+        // Uppdatera också stats
+        const currentStats = JSON.parse(localStorage.getItem('currentStats') || '{"points": 0, "time": 0}');
+        currentStats.time = newTime;
+        localStorage.setItem('currentStats', JSON.stringify(currentStats));
+        
         return newTime;
       });
     }, 1000);
@@ -57,10 +78,36 @@ export default function StartRoutePage({ params }) {
     return () => clearInterval(interval);
   }, []);
 
+  // Uppdatera poäng från localStorage
+  useEffect(() => {
+    const updatePoints = () => {
+      const currentStats = JSON.parse(localStorage.getItem('currentStats') || '{"points": 0, "time": 0}');
+      setTotalPoints(currentStats.points);
+    };
+
+    // Lyssna på localStorage ändringar (för när man kommer tillbaka från station)
+    const handleStorageChange = () => {
+      updatePoints();
+      const storedCompleted = JSON.parse(localStorage.getItem("completedStations") || "[]");
+      setCompletedStations(storedCompleted);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Kolla även när komponenten får fokus (för när man navigerar tillbaka)
+    window.addEventListener('focus', updatePoints);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', updatePoints);
+    };
+  }, []);
+
   const handleGoToStation = () => {
-    if (nextStationIndex >= route.stations.length) {
-      localStorage.removeItem("nextStation");
-      localStorage.removeItem("currentRoute");
+    // Kolla först om alla 4 stationer är klara
+    if (completedStations.length >= 4 || nextStationIndex >= route.stations.length) {
+      // Alla stationer klara - gå till resultat
+      localStorage.setItem("nextStation", "done");
       router.push("/results");
       return;
     }
@@ -69,10 +116,11 @@ export default function StartRoutePage({ params }) {
     const currentStationId = route.stations[currentIndex]?.id;
     if (!currentStationId) return;
 
+    // Uppdatera vad som är nästa station
     const nextIndex = currentIndex + 1;
     if (nextIndex < route.stations.length) {
       setNextStationIndex(nextIndex);
-      localStorage.setItem("nextStation", route.stations[nextIndex].id);
+      localStorage.setItem("nextStation", route.stations[nextIndex].id.toString());
     } else {
       setNextStationIndex(nextIndex);
       localStorage.setItem("nextStation", "done");
@@ -87,6 +135,11 @@ export default function StartRoutePage({ params }) {
       .padStart(2, "0");
     const seconds = (secs % 60).toString().padStart(2, "0");
     return `${minutes}:${seconds}`;
+  };
+
+  const getDistance = () => {
+    // Hämta från rutt-data eller beräkna baserat på genomförda stationer
+    return route?.distance || "2,5 km";
   };
 
   if (!route) return <p>Rutt ej hittad</p>;
@@ -123,8 +176,9 @@ export default function StartRoutePage({ params }) {
         <ul className={styles.stationList}>
           {route.stations.map((s, i) => {
             const isCompleted = completedStations.includes(s.id);
+            const isCurrent = i === nextStationIndex && !isCompleted;
             return (
-              <li key={i} className={styles.stationInfoContainer}>
+              <li key={i} className={`${styles.stationInfoContainer} ${isCurrent ? styles.currentStation : ''}`}>
                 <div className={styles.stationInfo}>
                   <Image
                     src={"/location-mark.svg"}
@@ -145,6 +199,9 @@ export default function StartRoutePage({ params }) {
                     alt="checkmark"
                   />
                 )}
+                {isCurrent && (
+                  <div className={styles.currentMarker}>→</div>
+                )}
               </li>
             );
           })}
@@ -152,16 +209,24 @@ export default function StartRoutePage({ params }) {
       </div>
 
       <button className={styles.stationButton} onClick={handleGoToStation}>
-        {nextStationIndex >= route.stations.length
-          ? "Avsluta Rutt"
+        {completedStations.length >= 4 || nextStationIndex >= route.stations.length
+          ? "Visa Resultat"
           : "Framme vid Station"}
       </button>
 
       <div className={styles.statContainer}>
-        <p className={styles.statText}>
+        <div className={styles.statItem}>
+          <small>Poäng:</small>
+          <span>{totalPoints}p</span>
+        </div>
+        <div className={styles.statItem}>
+          <small>Distans:</small>
+          <span>{getDistance()}</span>
+        </div>
+        <div className={styles.statItem}>
           <small>Tid:</small>
-          {formatTime(seconds)}
-        </p>
+          <span>{formatTime(seconds)}</span>
+        </div>
       </div>
     </main>
   );

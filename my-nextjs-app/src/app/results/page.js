@@ -11,28 +11,52 @@ export default function ResultsPage() {
   const [badges, setBadges] = useState([]);
   const [stationResults, setStationResults] = useState([]);
   const [endTime, setEndTime] = useState("");
+  const [totalTime, setTotalTime] = useState(0);
 
   useEffect(() => {
-    // Simulerad data - ersätt med riktig data från localStorage eller API
-    const mockStats = {
-      completedStations: 5,
-      totalStations: 5,
+    // Hämta verklig data från localStorage
+    const savedResults = JSON.parse(localStorage.getItem('stationResults') || '[]');
+    const savedStats = JSON.parse(localStorage.getItem('currentStats') || '{"points": 0, "time": 0}');
+    const savedTime = parseInt(localStorage.getItem('currentTime') || '0');
+    
+    // Beräkna totala poäng från alla stationer
+    const totalPoints = savedResults.reduce((sum, station) => sum + (station.points || 0), 0);
+    
+    // Hitta bästa och sämsta station
+    let bestStation = null;
+    let worstStation = null;
+    let highestPoints = -Infinity;
+    let lowestPoints = Infinity;
+    
+    savedResults.forEach(station => {
+      if (station.points > highestPoints) {
+        highestPoints = station.points;
+        bestStation = station.name;
+      }
+      if (station.points < lowestPoints) {
+        lowestPoints = station.points;
+        worstStation = station.name;
+      }
+    });
+
+    // Markera bästa och sämsta station
+    const resultsWithMarks = savedResults.map(station => ({
+      ...station,
+      isBest: station.name === bestStation && station.points === highestPoints,
+      isWorst: station.name === worstStation && station.points === lowestPoints && savedResults.length > 1
+    }));
+
+    const calculatedStats = {
+      completedStations: savedResults.length,
+      totalStations: 4, // Antalet stationer i appen
       currentRoundStats: {
-        totalTime: 545,
-        averageScore: 27,
-        bestStation: "Station 3",
-        worstStation: "Station 1",
-        totalScore: 135,
+        totalTime: savedTime,
+        averageScore: savedResults.length > 0 ? Math.round(totalPoints / savedResults.length) : 0,
+        bestStation: bestStation || "Ingen",
+        worstStation: worstStation || "Ingen",
+        totalScore: totalPoints,
       },
     };
-
-    const mockStationResults = [
-      { id: 1, name: "Armhävningar", result: 12, unit: "reps", goal: 10, points: 2, isBest: false, isWorst: false },
-      { id: 2, name: "Jägarvila", result: 50, unit: "sek", goal: 50, points: 0, isBest: false, isWorst: false },
-      { id: 3, name: "Plankan", result: 85, unit: "sek", goal: 60, points: 25, isBest: true, isWorst: false },
-      { id: 4, name: "Burpees", result: 18, unit: "reps", goal: 8, points: 10, isBest: false, isWorst: false },
-      { id: 5, name: "Sit-ups", result: 25, unit: "reps", goal: 20, points: 5, isBest: false, isWorst: false },
-    ];
 
     // Beräkna sluttid
     const now = new Date();
@@ -41,33 +65,44 @@ export default function ResultsPage() {
       minute: '2-digit' 
     });
 
-    setStats(mockStats);
-    setStationResults(mockStationResults);
+    setStats(calculatedStats);
+    setStationResults(resultsWithMarks);
     setEndTime(endTimeString);
+    setTotalTime(savedTime);
 
-    // Badge-logik
+    // Badge-logik baserat på verklig prestanda
     const newBadges = [];
-    if (mockStats.completedStations === mockStats.totalStations) {
+    if (calculatedStats.completedStations === calculatedStats.totalStations) {
       newBadges.push({
         icon: "🏅",
         title: "Fullständig!",
         type: "gold",
       });
     }
-    if (mockStats.currentRoundStats.averageScore > 25) {
+    if (totalPoints > 0) {
       newBadges.push({
         icon: "💪",
-        title: "Stark prestation!",
+        title: "Positiva poäng!",
         type: "silver",
       });
     }
-    if (mockStats.currentRoundStats.totalTime < 600) {
+    if (savedTime < 600) { // Under 10 minuter
       newBadges.push({
         icon: "⚡",
         title: "Snabb tid!",
         type: "bronze",
       });
     }
+    // Kolla för nya rekord
+    const hasNewRecord = savedResults.some(station => station.isRecord);
+    if (hasNewRecord) {
+      newBadges.push({
+        icon: "🏆",
+        title: "Nytt rekord!",
+        type: "gold",
+      });
+    }
+    
     setBadges(newBadges);
   }, []);
 
@@ -78,12 +113,19 @@ export default function ResultsPage() {
   };
 
   const handleNewRound = () => {
-    localStorage.removeItem("finalStats");
+    // Rensa sessiondata men behåll rekord
+    localStorage.removeItem("currentStats");
+    localStorage.removeItem("stationResults");
     localStorage.removeItem("nextStation");
     localStorage.removeItem("currentRoute");
     localStorage.removeItem("currentTime");
     localStorage.removeItem("completedStations");
     router.push("/");
+  };
+
+  const handleViewRecords = () => {
+    // Navigera till en rekordvy (kan implementeras senare)
+    alert("Rekordvy kommer snart!");
   };
 
   if (!stats) {
@@ -125,53 +167,60 @@ export default function ResultsPage() {
                   <div className={styles.scoreLabel}>poäng</div>
                 </div>
               </div>
+              
+              {/* Sammanfattning under cirkeln */}
+              <div className={styles.summaryText}>
+                <p><strong>Genomsnitt:</strong> {stats.currentRoundStats.averageScore} poäng per station</p>
+                <p><strong>Total tid:</strong> {formatTime(stats.currentRoundStats.totalTime)}</p>
+                <p><strong>Stationer:</strong> {stats.completedStations}/{stats.totalStations}</p>
+              </div>
             </section>
 
             {/* Stationsresultat */}
             <section className={styles.performanceSection}>
               <h2 className={styles.sectionTitle}>Stationsresultat</h2>
-              <div className={styles.stationsList}>
-                {stationResults.map((station) => (
-                  <div key={station.id} className={styles.stationCard}>
-                    <div className={styles.stationHeader}>
-                      <div className={styles.stationNumber}>{station.id}</div>
-                      <div className={styles.stationName}>{station.name}</div>
-                      <div className={styles.stationPoints}>
-                        {station.points > 0 ? `+${station.points}` : station.points} poäng
+              {stationResults.length > 0 ? (
+                <div className={styles.stationsList}>
+                  {stationResults.map((station) => (
+                    <div key={station.stationId} className={styles.stationCard}>
+                      <div className={styles.stationHeader}>
+                        <div className={styles.stationNumber}>{station.stationId}</div>
+                        <div className={styles.stationName}>
+                          {station.name}
+                          {station.isRecord && <span className={styles.recordBadge}>🏆</span>}
+                        </div>
+                        <div className={`${styles.stationPoints} ${station.points >= 0 ? styles.positive : styles.negative}`}>
+                          {station.points > 0 ? `+${station.points}` : station.points} poäng
+                        </div>
                       </div>
+                      <div className={styles.stationDetails}>
+                        <div className={styles.stationResult}>
+                          Resultat: <strong>{station.result} {station.unit}</strong>
+                        </div>
+                        <div className={styles.stationGoal}>
+                          Mål: {station.goal} {station.unit}
+                        </div>
+                      </div>
+                      {station.isBest && (
+                        <div className={`${styles.resultBadge} ${styles.best}`}>
+                          Bäst
+                        </div>
+                      )}
+                      {station.isWorst && (
+                        <div className={`${styles.resultBadge} ${styles.worst}`}>
+                          Sämst
+                        </div>
+                      )}
                     </div>
-                    <div className={styles.stationDetails}>
-                      <div className={styles.stationResult}>
-                        Resultat: <strong>{station.result} {station.unit}</strong>
-                      </div>
-                      <div className={styles.stationGoal}>
-                        Mål: {station.goal} {station.unit}
-                      </div>
-                    </div>
-                    {station.isBest && (
-                      <div className={`${styles.resultBadge} ${styles.best}`}>
-                        Bäst
-                      </div>
-                    )}
-                    {station.isWorst && (
-                      <div className={`${styles.resultBadge} ${styles.worst}`}>
-                        Sämst
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className={styles.noResults}>Inga stationsresultat hittades.</p>
+              )}
             </section>
 
-            {/* Sluttid */}
-            <section className={styles.endTimeSection}>
-              <div className={styles.endTimeCard}>
-                <div className={styles.endTimeLabel}>Sluttid</div>
-                <div className={styles.endTimeValue}>{endTime}</div>
-              </div>
-            </section>
 
-            {/* Badges */}
+          
             
 
             {/* Åtgärdsknappar */}
@@ -181,6 +230,12 @@ export default function ResultsPage() {
                 className={`${styles.button} ${styles.primaryButton}`}
               >
                  Ny runda
+              </button>
+              <button
+                onClick={handleViewRecords}
+                className={`${styles.button} ${styles.secondaryButton}`}
+              >
+                🏆 Visa rekord
               </button>
             </div>
           </div>

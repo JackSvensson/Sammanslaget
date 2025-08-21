@@ -95,6 +95,11 @@ export default function StationPage({
   const [showExtraReps, setShowExtraReps] = useState(false);
   const [showGoalFeedback, setShowGoalFeedback] = useState(false);
 
+  // Stats från localStorage
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [totalTime, setTotalTime] = useState(0);
+  const [isNewRecord, setIsNewRecord] = useState(false);
+
   useEffect(() => {
     // Hämta station baserat på ID
     const currentStation = STATIONS.find(s => s.id === parseInt(stationId));
@@ -105,6 +110,14 @@ export default function StationPage({
       setTime(0);
       setIsRunning(false);
     }
+
+    // Hämta befintliga stats
+    const savedStats = JSON.parse(localStorage.getItem('currentStats') || '{"points": 0, "time": 0}');
+    setTotalPoints(savedStats.points);
+    
+    // Hämta timer från localStorage
+    const savedTime = parseInt(localStorage.getItem('currentTime') || '0');
+    setTotalTime(savedTime);
   }, [stationId]);
 
   // Timer logic för Jägarvila
@@ -126,10 +139,29 @@ export default function StationPage({
     };
   }, [isRunning]);
 
+  // Global timer that continues running
+  useEffect(() => {
+    const globalTimer = setInterval(() => {
+      setTotalTime(prev => {
+        const newTime = prev + 1;
+        localStorage.setItem('currentTime', newTime.toString());
+        return newTime;
+      });
+    }, 1000);
+
+    return () => clearInterval(globalTimer);
+  }, []);
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')} : ${secs.toString().padStart(2, '0')}`;
+  };
+
+  const formatGlobalTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleStartTimer = () => {
@@ -171,14 +203,44 @@ export default function StationPage({
     }
   };
 
-  const calculatePoints = (result, goal) => {
-    if (result > goal) {
-      return result - goal; // Bonuspoäng
-    } else if (result === goal) {
-      return 0; // Exakt målet
-    } else {
-      return goal - result; // Minuspoäng (negativ)
+  const calculatePoints = (result, goal, type) => {
+    if (type === 'reps') {
+      // För reps: +1 poäng per rep över målet, -1 poäng per rep under målet
+      return result - goal;
+    } else if (type === 'timer') {
+      // För timer: +1 poäng per sekund över målet, -1 poäng per sekund under målet
+      return result - goal;
     }
+    return 0;
+  };
+
+  const checkForRecord = async (stationResult) => {
+    const recordKey = `station_${station.id}_record`;
+    const currentRecord = localStorage.getItem(recordKey);
+    
+    let isRecord = false;
+    
+    if (!currentRecord) {
+      // Första gången för denna station
+      isRecord = true;
+      localStorage.setItem(recordKey, JSON.stringify(stationResult));
+    } else {
+      const recordData = JSON.parse(currentRecord);
+      
+      // För reps: högre är bättre, för timer: högre är också bättre (längre tid)
+      if (stationResult.result > recordData.result) {
+        isRecord = true;
+        localStorage.setItem(recordKey, JSON.stringify(stationResult));
+      }
+    }
+    
+    if (isRecord) {
+      setIsNewRecord(true);
+      // Visa record-meddelande i 3 sekunder
+      setTimeout(() => setIsNewRecord(false), 3000);
+    }
+    
+    return isRecord;
   };
 
   const handleCompleteStation = async () => {
@@ -201,7 +263,7 @@ export default function StationPage({
     
     // Beräkna poäng
     const finalResult = station.type === 'timer' ? time : result;
-    const points = calculatePoints(finalResult, station.goal);
+    const points = calculatePoints(finalResult, station.goal, station.type);
     
     // Spara resultat
     const stationResult = {
@@ -212,11 +274,52 @@ export default function StationPage({
       goal: station.goal,
       points: points,
       extraReps: extraReps,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      type: station.type
     };
     
-    // Avgör om det är sista stationen
-    const isLastStation = station.id === STATIONS.length;
+    // Kolla för rekord
+    const isRecord = await checkForRecord(stationResult);
+    stationResult.isRecord = isRecord;
+    
+    // Uppdatera totala poäng
+    const newTotalPoints = totalPoints + points;
+    setTotalPoints(newTotalPoints);
+    
+    // Spara stats till localStorage
+    const currentStats = {
+      points: newTotalPoints,
+      time: totalTime
+    };
+    localStorage.setItem('currentStats', JSON.stringify(currentStats));
+    
+    // Spara station resultat för slutsammanfattning
+    const allResults = JSON.parse(localStorage.getItem('stationResults') || '[]');
+    allResults.push(stationResult);
+    localStorage.setItem('stationResults', JSON.stringify(allResults));
+    
+    // Markera som slutförd i localStorage
+    let completedStations = JSON.parse(localStorage.getItem('completedStations') || '[]');
+    if (!completedStations.includes(station.id)) {
+      completedStations.push(station.id);
+      localStorage.setItem('completedStations', JSON.stringify(completedStations));
+    }
+    
+    // Avgör om det är sista stationen (station 4 är den sista)
+    const isLastStation = station.id === 4;
+    
+    if (isLastStation) {
+      // Sista stationen - gå direkt till resultat
+      localStorage.setItem('nextStation', 'done');
+      setIsSubmitting(false);
+      
+      // Navigera direkt till resultat istället för att använda callback
+      const router = require('next/navigation').useRouter;
+      if (typeof window !== 'undefined') {
+        window.location.href = '/results';
+      }
+      return;
+    }
     
     if (onStationComplete) {
       onStationComplete(stationResult, isLastStation);
@@ -245,6 +348,12 @@ export default function StationPage({
     );
   }
 
+  const currentPoints = calculatePoints(
+    station.type === 'timer' ? time : result, 
+    station.goal, 
+    station.type
+  );
+
   return (
     <div className={styles.stationPage}>
       <div className={styles.phoneContainer}>
@@ -258,6 +367,13 @@ export default function StationPage({
           <h1 className={styles.stationTitle}>{station.name}</h1>
           
           <div className={styles.exerciseType}>{station.description}</div>
+
+          {/* New Record Notification */}
+          {isNewRecord && (
+            <div className={styles.recordNotification}>
+              🏆 NYTT REKORD! 🏆
+            </div>
+          )}
 
           {/* Övningsbild */}
           <div className={styles.exerciseIllustration}>
@@ -296,7 +412,7 @@ export default function StationPage({
               {/* Poängräkning med frågetecken för timer */}
               <div className={styles.pointCalculation}>
                 <span className={styles.pointsLabel}>
-                  Poängräkning: {calculatePoints(time, station.goal)} poäng
+                  Poängräkning: {calculatePoints(time, station.goal, 'timer')} poäng
                 </span>
                 <button 
                   className={styles.questionButton}
@@ -355,7 +471,7 @@ export default function StationPage({
               {/* Poängräkning med frågetecken */}
               <div className={styles.pointCalculation}>
                 <span className={styles.pointsLabel}>
-                  Poängräkning: {calculatePoints(result, station.goal)} poäng
+                  Poängräkning: {calculatePoints(result, station.goal, 'reps')} poäng
                 </span>
                 <button 
                   className={styles.questionButton}
@@ -431,7 +547,7 @@ export default function StationPage({
           <div className={styles.bottomStats}>
             <div className={styles.statItem}>
               <div className={styles.statItemLabel}>Poäng</div>
-              <div className={styles.statItemValue}>0p</div>
+              <div className={styles.statItemValue}>{totalPoints}p</div>
             </div>
             <div className={styles.statItem}>
               <div className={styles.statItemLabel}>Distans</div>
@@ -439,7 +555,7 @@ export default function StationPage({
             </div>
             <div className={styles.statItem}>
               <div className={styles.statItemLabel}>Tid</div>
-              <div className={styles.statItemValue}>05:03</div>
+              <div className={styles.statItemValue}>{formatGlobalTime(totalTime)}</div>
             </div>
             <div className={styles.statItem}>
               <div className={styles.statItemLabel}>Station</div>
@@ -456,13 +572,16 @@ export default function StationPage({
               <h3 className={styles.tooltipTitle}>Resultatbaserat poängsystem</h3>
               <div className={styles.tooltipContent}>
                 <div className={styles.tooltipItem}>
-                  <strong>Mer än målet</strong> = bonuspoäng
+                  <strong>Mer än målet</strong> = +1 poäng per extra rep/sekund
                 </div>
                 <div className={styles.tooltipItem}>
                   <strong>Exakt målet</strong> = 0 poäng
                 </div>
                 <div className={styles.tooltipItem}>
-                  <strong>Mindre än målet</strong> = minuspoäng
+                  <strong>Mindre än målet</strong> = -1 poäng per saknad rep/sekund
+                </div>
+                <div className={styles.tooltipItem}>
+                  <strong>Rekord</strong> = sparas automatiskt för varje station
                 </div>
               </div>
               <button 

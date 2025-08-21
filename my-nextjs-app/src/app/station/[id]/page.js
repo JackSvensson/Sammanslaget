@@ -8,10 +8,11 @@ export default function StationRoute() {
   const router = useRouter();
   const stationId = parseInt(params.id);
 
-  const handleStationComplete = (stationResult) => {
+  const handleStationComplete = (stationResult, isLastStation) => {
     console.log("Station slutförd:", stationResult);
     const routeId = localStorage.getItem("currentRoute");
 
+    // Markera som slutförd
     let completedStations = JSON.parse(
       localStorage.getItem("completedStations") || "[]"
     );
@@ -25,7 +26,15 @@ export default function StationRoute() {
       JSON.stringify(completedStations)
     );
 
-    router.push(`/startRoute/${routeId}`);
+    // Kolla om det är sista stationen (station 4)
+    if (stationId === 4 || isLastStation) {
+      // Sista stationen - gå till resultat
+      localStorage.setItem("nextStation", "done");
+      router.push("/results");
+    } else {
+      // Inte sista stationen - gå tillbaka till rutt-vyn
+      router.push(`/startRoute/${routeId}`);
+    }
   };
 
   const handleAbort = () => {
@@ -33,6 +42,10 @@ export default function StationRoute() {
     if (confirmed) {
       localStorage.removeItem("nextStation");
       localStorage.removeItem("currentRoute");
+      localStorage.removeItem("currentStats");
+      localStorage.removeItem("stationResults");
+      localStorage.removeItem("currentTime");
+      localStorage.removeItem("completedStations");
       router.push("/");
     }
   };

@@ -63,7 +63,7 @@
 .scoreCircleContainer {
   position: relative;
   display: inline-block;
-  margin: 0 auto;
+  margin: 0 auto 20px;
 }
 
 .scoreCircleBackground {
@@ -97,6 +97,20 @@
   letter-spacing: 0.5px;
 }
 
+/* Sammanfattning text under cirkeln */
+.summaryText {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: left;
+}
+
+.summaryText p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #333;
+}
+
 /* Stationsresultat - Orange kort */
 .performanceSection {
   margin-bottom: 25px;
@@ -114,6 +128,13 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.noResults {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 20px;
 }
 
 .stationCard {
@@ -150,6 +171,19 @@
   font-weight: 600;
   flex: 1;
   margin-left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recordBadge {
+  font-size: 12px;
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
 .stationPoints {
@@ -158,6 +192,14 @@
   background: rgba(255, 255, 255, 0.2);
   padding: 4px 8px;
   border-radius: 8px;
+}
+
+.stationPoints.positive {
+  background: rgba(76, 175, 80, 0.9);
+}
+
+.stationPoints.negative {
+  background: rgba(244, 67, 54, 0.9);
 }
 
 .stationDetails {
@@ -307,6 +349,18 @@
 
 .primaryButton:hover {
   background: #e55a00;
+  transform: translateY(-2px);
+}
+
+.secondaryButton {
+  background: #f0f0f0;
+  color: #333;
+  border: 2px solid #e0e0e0;
+}
+
+.secondaryButton:hover {
+  background: #e8e8e8;
+  border-color: #d0d0d0;
 }
 
 /* Mobil vy utan frame */
@@ -326,5 +380,13 @@
   
   .totalScore {
     font-size: 40px;
+  }
+
+  .badgesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .actionButtons {
+    padding-bottom: 20px;
   }
 }
