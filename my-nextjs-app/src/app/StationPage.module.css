@@ -1,0 +1,469 @@
+/* StationPage.module.css */
+
+/* Skip link för tillgänglighet */
+.skipLink {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary-orange);
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 100;
+    border-radius: 4px;
+  }
+  
+  .skipLink:focus {
+    top: 0;
+  }
+  
+  /* Screen reader only class */
+  .srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  /* Huvudcontainer */
+  .stationPage {
+    min-height: 100vh;
+    background: #f5f5f7;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  /* Mobilskärm container */
+  .phoneContainer {
+    max-width: 390px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: white;
+    position: relative;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Status bar (tid, batteri etc) */
+  .statusBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: white;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+  .statusBarTime {
+    font-weight: 600;
+  }
+  
+  .statusBarIcons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  
+  /* Header med LindMotion */
+  .appHeader {
+    background: white;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .appLogo {
+    font-size: 20px;
+    font-weight: 700;
+    color: #FF6B00;
+  }
+  
+  .stationIndicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #3B82F6;
+    color: white;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  /* Huvudinnehåll */
+  .mainContent {
+    padding: 20px;
+    padding-bottom: 100px;
+  }
+  
+  /* Station titel */
+  .stationTitle {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+  }
+  
+  .exerciseType {
+    text-align: center;
+    padding: 4px 12px;
+    background: #FFE5CC;
+    color: #FF6B00;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+    margin: 0 auto 20px;
+    width: fit-content;
+  }
+  
+  /* Övningsbild/illustration */
+  .exerciseIllustration {
+    width: 100%;
+    max-width: 280px;
+    height: 200px;
+    margin: 0 auto 30px;
+    background: white;
+    border: 2px solid #e5e5e5;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .exerciseImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 20px;
+  }
+  
+  /* För Jägarvila med två bilder */
+  .exerciseIllustration.dual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  .exerciseIllustration.dual .exerciseImage {
+    padding: 10px;
+  }
+  
+  /* Playknapp för övningsanimation */
+  .playButton {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 107, 0, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s ease;
+  }
+  
+  .playButton:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Info och Lär knapparna */
+  .infoButtons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .infoButton {
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .infoButton.active {
+    background: #FF6B00;
+    color: white;
+  }
+  
+  .infoButton.inactive {
+    background: #f0f0f0;
+    color: #666;
+  }
+  
+  /* Timer sektion för Jägarvila */
+  .timerSection {
+    background: white;
+    border: 2px solid #e5e5e5;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .timerLabel {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  .timerDisplay {
+    font-size: 48px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .timerControls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+  }
+  
+  .timerButton {
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .startButton {
+    background: #FF6B00;
+    color: white;
+    min-width: 100px;
+  }
+  
+  .startButton:hover {
+    background: #e55a00;
+  }
+  
+  .stopButton {
+    background: #333;
+    color: white;
+    min-width: 100px;
+  }
+  
+  .stopButton:hover {
+    background: #000;
+  }
+  
+  /* Resultat input sektion */
+  .resultSection {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .resultLabel {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+    display: block;
+  }
+  
+  .resultInputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .resultInput {
+    flex: 1;
+    padding: 16px;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    background: #f9f9f9;
+    transition: all 0.2s ease;
+  }
+  
+  .resultInput:focus {
+    outline: none;
+    border-color: #FF6B00;
+    background: white;
+  }
+  
+  .resultControls {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .resultButton {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 2px solid #e5e5e5;
+    background: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .resultButton:hover {
+    border-color: #FF6B00;
+    background: #fff5f0;
+  }
+  
+  /* Extra reps sektion */
+  .extraRepsSection {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+  }
+  
+  .extraRepsSection strong {
+    color: #FF6B00;
+    font-weight: 600;
+  }
+  
+  /* Klar med övning knapp */
+  .completeButton {
+    width: 100%;
+    padding: 18px;
+    background: #FF6B00;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 30px;
+  }
+  
+  .completeButton:hover {
+    background: #e55a00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+  }
+  
+  .completeButton:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Bottenmeny */
+  .bottomStats {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 390px;
+    background: #FFE5CC;
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    border-top: 1px solid #FFD4A8;
+  }
+  
+  .statItem {
+    text-align: center;
+  }
+  
+  .statItemLabel {
+    font-size: 10px;
+    color: #AA6600;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  
+  .statItemValue {
+    font-size: 16px;
+    font-weight: 700;
+    color: #FF6B00;
+  }
+  
+  /* Responsiv design */
+  @media (max-width: 430px) {
+    .phoneContainer {
+      max-width: 100%;
+      box-shadow: none;
+    }
+    
+    .mainContent {
+      padding: 15px;
+    }
+    
+    .timerDisplay {
+      font-size: 40px;
+    }
+  }
+  
+  /* Animationer */
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  .startButton {
+    animation: pulse 2s infinite;
+  }
+  
+  .startButton:hover {
+    animation: none;
+  }
+  
+  /* Loading state */
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    color: #666;
+  }
+  
+  /* Success animation */
+  @keyframes success {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  .successAnimation {
+    animation: success 0.5s ease;
+  }
+  
+  

@@ -2,379 +2,445 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import styles from './StationPage.module.css';
+
+// Station data
+const STATIONS = [
+  {
+    id: 1,
+    name: 'Armhävningar',
+    type: 'reps',
+    unit: 'st',
+    description: 'Gör så många armhävningar du kan',
+    targetScore: 10,
+    positions: [
+      { number: 70, description: 'Startposition' },
+      { number: 107, description: 'Nedre position' }
+    ],
+    instructions: [
+      'Starta i plankan med raka armar',
+      'Sänk kroppen tills bröstet nästan nuddar golvet',
+      'Pressa upp till startposition',
+      'Håll kroppen rak hela tiden'
+    ],
+    image: '/exercises/pushup.svg'
+  },
+  {
+    id: 2,
+    name: 'Jägarvila',
+    type: 'timer',
+    unit: 'sek',
+    description: 'Håll positionen så länge du kan',
+    targetScore: 50,
+    instructions: [
+      'Sitt med ryggen mot väggen',
+      'Böj knäna i 90 graders vinkel',
+      'Håll positionen',
+      'Klicka Start när du börjar och Stop när du inte orkar mer'
+    ],
+    image: ['/exercises/wallsit.svg']
+  },
+  {
+    id: 3,
+    name: 'Step up',
+    type: 'reps',
+    unit: 'st',
+    description: 'Alternera mellan höger och vänster ben',
+    targetScore: 26,
+    instructions: [
+      'Ställ dig framför en bänk eller låda',
+      'Steg upp med höger fot',
+      'Lyft vänster knä upp',
+      'Steg ner och repetera med andra benet'
+    ],
+    image: '/exercises/stepup.svg'
+  },
+  {
+    id: 4,
+    name: 'Burpees',
+    type: 'reps',
+    unit: 'st',
+    description: 'Fullständiga burpees med hopp',
+    targetScore: 13,
+    instructions: [
+      'Starta stående',
+      'Gå ner i planka',
+      'Gör en armhävning',
+      'Hoppa med fötterna fram',
+      'Hoppa upp med armarna över huvudet'
+    ],
+    image: '/exercises/burpees.svg'
+  }
+];
 
 export default function StationPage({ 
-  stationId, 
-  stationInfo, 
-  isLastStation = false,
+  stationId = 1,
   onStationComplete,
   onAbort 
 }) {
   const router = useRouter();
-  const [result, setResult] = useState('');
+  const [station, setStation] = useState(null);
+  const [result, setResult] = useState(12); // Startvärde
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [stats, setStats] = useState({
-    completedStations: 0,
-    totalStations: 5, // Exempel
-    currentRoundStats: {
-      totalTime: 0,
-      averageScore: 0,
-      bestStation: '',
-      worstStation: ''
-    }
-  });
-  const [statusMessage, setStatusMessage] = useState('');
+  const [activeTab, setActiveTab] = useState('info');
   
-  // Refs för tillgänglighet
-  const mainContentRef = useRef(null);
-  const resultInputRef = useRef(null);
-  const statusRef = useRef(null);
+  // Timer states för Jägarvila
+  const [time, setTime] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const intervalRef = useRef(null);
+  
+  // Extra reps tracking
+  const [extraReps, setExtraReps] = useState(0);
+  const [showExtraReps, setShowExtraReps] = useState(false);
+  
+  // Global stats
+  const [globalStats, setGlobalStats] = useState({
+    totalPoints: 0,
+    distance: 2.3,
+    totalTime: 303, // sekunder
+    currentStation: parseInt(stationId)
+  });
 
-  // Ladda användarens stats när komponenten mountas
   useEffect(() => {
-    loadUserStats();
-    if (mainContentRef.current) {
-      mainContentRef.current.focus();
+    // Hämta station baserat på ID
+    const currentStation = STATIONS.find(s => s.id === parseInt(stationId));
+    setStation(currentStation);
+    
+    // Reset states för ny station
+    if (currentStation?.type === 'timer') {
+      setTime(0);
+      setIsRunning(false);
+    } else if (currentStation?.type === 'reps') {
+      setResult(currentStation.targetScore || 12);
     }
+    
+    setShowExtraReps(false);
+    setExtraReps(0);
   }, [stationId]);
 
-  const loadUserStats = () => {
-    const mockStats = {
-      completedStations: parseInt(stationId) - 1,
-      totalStations: 5,
-      currentRoundStats: {
-        totalTime: 450,
-        averageScore: 8.2,
-        bestStation: 'Station 2',
-        worstStation: 'Station 1'
+  // Timer logic för Jägarvila
+  useEffect(() => {
+    if (isRunning) {
+      intervalRef.current = setInterval(() => {
+        setTime(prevTime => prevTime + 1);
+      }, 1000);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    }
+    
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
       }
     };
-    setStats(mockStats);
-  };
+  }, [isRunning]);
 
-  const updateStatusMessage = (message) => {
-    setStatusMessage(message);
-    setTimeout(() => {
-      if (statusRef.current) {
-        statusRef.current.focus();
-      }
-    }, 100);
-  };
-
-  const handleResultSubmit = async () => {
-    if (!result.trim()) {
-      updateStatusMessage("Fel: Vänligen fyll i ditt resultat");
-      if (resultInputRef.current) {
-        resultInputRef.current.focus();
-      }
-      return;
+  // Auto-detect extra reps
+  useEffect(() => {
+    if (station?.type === 'reps' && result > station.targetScore && !showExtraReps) {
+      setShowExtraReps(true);
+      setExtraReps(result - station.targetScore);
     }
-  
-    setIsSubmitting(true);
-    updateStatusMessage("Sparar ditt resultat...");
-  
-    try {
-      await saveStationResult({
-        stationId,
-        result: result.trim(),
-        timestamp: new Date().toISOString(),
-      });
-  
-      const newStats = {
-        ...stats,
-        completedStations: stats.completedStations + 1,
-      };
-      setStats(newStats);
-  
-      updateStatusMessage(
-        `Resultat sparat. ${
-          isLastStation ? "Runda slutförd!" : "Går vidare till nästa station."
-        }`
-      );
-  
-      setTimeout(() => {
-        if (onStationComplete) {
-          onStationComplete(isLastStation ? "complete" : "next", {
-            stationId,
-            result: result.trim(),
-            stats: newStats,
-          });
-        }
-  
-        if (isLastStation) {
-          localStorage.setItem("finalStats", JSON.stringify(newStats));
-          router.push("/results");
-        }
-      }, 1500);
-    } catch (error) {
-      console.error("Fel vid sparande av resultat:", error);
-      updateStatusMessage("Fel: Något gick fel vid sparande. Försök igen.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleAbort = () => {
-    const confirmed = confirm('Är du säker på att du vill avbryta rundan? All progress kommer att förloras.');
-    if (confirmed) {
-      updateStatusMessage('Avbryter rundan...');
-      if (onAbort) {
-        onAbort();
-      } else {
-        router.back();
-      }
-    }
-  };
-
-  const handleGoBack = () => {
-    const confirmed = confirm('Vill du gå tillbaka till föregående station? Nuvarande resultat kommer inte sparas.');
-    if (confirmed) {
-      updateStatusMessage('Går tillbaka...');
-      router.back();
-    }
-  };
-
-  const saveStationResult = async (data) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log('Resultat sparat:', data);
-        resolve();
-      }, 1000);
-    });
-  };
+  }, [result, station, showExtraReps]);
 
   const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes} minuter och ${remainingSeconds} sekunder`;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')} : ${secs.toString().padStart(2, '0')}`;
   };
 
-  const progressPercentage = (stats.completedStations / stats.totalStations) * 100;
+  const formatGlobalTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleStartTimer = () => {
+    setIsRunning(true);
+  };
+
+  const handleStopTimer = () => {
+    setIsRunning(false);
+    setResult(time);
+    
+    // Check if beat target
+    if (time > station.targetScore) {
+      setShowExtraReps(true);
+      setExtraReps(time - station.targetScore);
+    }
+  };
+
+  const handleIncrement = () => {
+    setResult(prev => prev + 1);
+  };
+
+  const handleDecrement = () => {
+    setResult(prev => Math.max(0, prev - 1));
+  };
+
+  const handleCompleteStation = async () => {
+    setIsSubmitting(true);
+    
+    // Calculate points
+    const actualResult = station.type === 'timer' ? time : result;
+    const points = Math.max(0, actualResult);
+    
+    // Update global stats
+    const newStats = {
+      ...globalStats,
+      totalPoints: globalStats.totalPoints + points
+    };
+    setGlobalStats(newStats);
+    
+    // Save result
+    const stationResult = {
+      stationId: station.id,
+      name: station.name,
+      result: actualResult,
+      unit: station.unit,
+      extraReps: extraReps,
+      points: points,
+      timestamp: new Date().toISOString()
+    };
+    
+    // Save to localStorage
+    const existingResults = JSON.parse(localStorage.getItem('stationResults') || '[]');
+    existingResults.push(stationResult);
+    localStorage.setItem('stationResults', JSON.stringify(existingResults));
+    localStorage.setItem('globalStats', JSON.stringify(newStats));
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Check if last station
+    const isLastStation = station.id === STATIONS.length;
+    
+    if (onStationComplete) {
+      onStationComplete(stationResult, isLastStation);
+    }
+    
+    if (isLastStation) {
+      router.push('/results');
+    } else {
+      router.push(`/station/${station.id + 1}`);
+    }
+    
+    setIsSubmitting(false);
+  };
+
+  if (!station) {
+    return (
+      <div className={styles.loading}>
+        <div className={styles.loadingSpinner}>⏳</div>
+        <p>Laddar station...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="station-page">
-      <a href="#main-content" className="skip-link">Hoppa till huvudinnehåll</a>
-
-      <div 
-        ref={statusRef}
-        aria-live="polite" 
-        aria-atomic="true"
-        className="sr-only"
-        tabIndex="-1"
-      >
-        {statusMessage}
-      </div>
-
-      <main 
-        id="main-content"
-        ref={mainContentRef}
-        tabIndex="-1"
-        className="main-content"
-      >
-        <header className="station-header">
-          <div className="station-title-row">
-            <h1>Station {stationId}</h1>
-            <span 
-              className="progress-text"
-              aria-label={`Station ${stats.completedStations + 1} av ${stats.totalStations}`}
-            >
-              {stats.completedStations + 1}/{stats.totalStations}
-            </span>
+    <div className={styles.stationPage}>
+      <div className={styles.phoneContainer}>
+        {/* Status bar */}
+        <div className={styles.statusBar}>
+          <span className={styles.statusBarTime}>9:41</span>
+          <div className={styles.statusBarIcons}>
+            <span>📶</span>
+            <span>📶</span>
+            <span>🔋</span>
           </div>
-          
-          <div 
-            className="progress-bar"
-            role="progressbar"
-            aria-valuenow={progressPercentage}
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-label={`Rundans framsteg: ${Math.round(progressPercentage)}% slutfört`}
-          >
-            <div 
-              className="progress-fill"
-              style={{ width: `${progressPercentage}%` }}
-              aria-hidden="true"
-            ></div>
+        </div>
+
+        {/* App header */}
+        <header className={styles.appHeader}>
+          <div className={styles.appLogo}>LindMotion</div>
+          <div className={styles.stationIndicator}>
+            <span>📊</span>
+            <span>STATION {station.id}</span>
           </div>
         </header>
 
-        <section className="station-info" aria-labelledby="station-info-heading">
-          <h2 id="station-info-heading">Övningsinformation</h2>
-          <div className="info-content">
-            <dl className="info-list">
-              <dt>Övning:</dt>
-              <dd>{stationInfo?.name || 'Stationsövning'}</dd>
-              
-              <dt>Beskrivning:</dt>
-              <dd>{stationInfo?.description || 'Utför övningen enligt instruktionerna'}</dd>
-              
-              <dt>Tid:</dt>
-              <dd>{stationInfo?.timeLimit || '2 minuter'}</dd>
-            </dl>
-            
-            {stationInfo?.instructions && (
-              <div>
-                <h3>Instruktioner:</h3>
-                <ol className="instructions-list">
-                  {stationInfo.instructions.map((instruction, index) => (
-                    <li key={index}>{instruction}</li>
-                  ))}
-                </ol>
-              </div>
+        {/* Main content */}
+        <main className={styles.mainContent}>
+          <h1 className={styles.stationTitle}>{station.name}</h1>
+          
+          {/* Position badges for Armhävningar */}
+          {station.positions && (
+            <div className={styles.positionBadges}>
+              {station.positions.map((pos, index) => (
+                <div key={index} className={styles.positionBadge}>
+                  {pos.number}
+                </div>
+              ))}
+            </div>
+          )}
+          
+          <div className={styles.exerciseType}>{station.description}</div>
+
+          {/* Exercise illustration */}
+          <div className={`${styles.exerciseIllustration} ${station.hasDualImage ? styles.dual : ''}`}>
+            {station.hasDualImage ? (
+              <>
+                <div className={styles.exerciseImage}>
+                  <img src={station.images?.[0] || '/placeholder.svg'} alt={`${station.name} position 1`} />
+                </div>
+                <div className={styles.exerciseImage}>
+                  <img src={station.images?.[1] || '/placeholder.svg'} alt={`${station.name} position 2`} />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.exerciseImage}>
+                  <img src={station.image || '/placeholder.svg'} alt={station.name} />
+                </div>
+                <button className={styles.playButton} aria-label="Spela övningsanimation">
+                  ▶
+                </button>
+              </>
             )}
           </div>
-        </section>
 
-        <section className="result-input" aria-labelledby="result-heading">
-          <h2 id="result-heading">Fyll i ditt resultat</h2>
-          <div className="input-section">
-            <label htmlFor="result-field" className="input-label">
-              Resultat ({stationInfo?.resultType || 'antal repetitioner'})
-              <span className="required-indicator" aria-label="obligatorisk">*</span>
-            </label>
-            <input
-              id="result-field"
-              ref={resultInputRef}
-              type="text"
-              value={result}
-              onChange={(e) => setResult(e.target.value)}
-              placeholder="Ange ditt resultat..."
-              disabled={isSubmitting}
-              className="result-input-field"
-              aria-required="true"
-              aria-describedby="result-help"
-              aria-invalid={!result.trim() ? "true" : "false"}
-            />
-            <div id="result-help" className="input-help">
-              Fyll i ditt resultat från övningen för att kunna gå vidare.
-            </div>
+          {/* Info/Lär tabs */}
+          <div className={styles.infoButtons}>
+            <button 
+              className={`${styles.infoButton} ${activeTab === 'info' ? styles.active : styles.inactive}`}
+              onClick={() => setActiveTab('info')}
+            >
+              Info
+            </button>
+            <button 
+              className={`${styles.infoButton} ${activeTab === 'learn' ? styles.active : styles.inactive}`}
+              onClick={() => setActiveTab('learn')}
+            >
+              Lär
+            </button>
           </div>
-        </section>
 
-        <section className="round-stats" aria-labelledby="stats-heading">
-          <h2 id="stats-heading">Rundstatistik</h2>
-          <dl className="stats-grid">
-            <div className="stat-item">
-              <dt className="stat-label">Genomförd tid:</dt>
-              <dd className="stat-value">{formatTime(stats.currentRoundStats.totalTime)}</dd>
+          {/* Timer for Jägarvila */}
+          {station.type === 'timer' && (
+            <div className={styles.timerSection}>
+              <div className={styles.timerLabel}>
+                Tid att slå: <strong>00:{station.targetScore}</strong>
+              </div>
+              <div className={styles.timerDisplay}>{formatTime(time)}</div>
+              <div className={styles.timerControls}>
+                {!isRunning ? (
+                  <button 
+                    className={`${styles.timerButton} ${styles.startButton}`}
+                    onClick={handleStartTimer}
+                    disabled={time > 0}
+                  >
+                    ▶ Start
+                  </button>
+                ) : (
+                  <button 
+                    className={`${styles.timerButton} ${styles.stopButton}`}
+                    onClick={handleStopTimer}
+                  >
+                    ■ STOP
+                  </button>
+                )}
+              </div>
+              {showExtraReps && (
+                <div className={styles.extraRepsSection}>
+                  <strong>+ {extraReps} sekunder Bra jobbat!</strong>
+                </div>
+              )}
             </div>
-            <div className="stat-item">
-              <dt className="stat-label">Genomsnitt:</dt>
-              <dd className="stat-value">{stats.currentRoundStats.averageScore}</dd>
-            </div>
-            <div className="stat-item">
-              <dt className="stat-label">Bästa station:</dt>
-              <dd className="stat-value stat-best">{stats.currentRoundStats.bestStation || 'Ingen än'}</dd>
-            </div>
-            <div className="stat-item">
-              <dt className="stat-label">Sämsta station:</dt>
-              <dd className="stat-value stat-worst">{stats.currentRoundStats.worstStation || 'Ingen än'}</dd>
-            </div>
-          </dl>
-        </section>
+          )}
 
-        <section className="button-section" aria-labelledby="actions-heading">
-          <h2 id="actions-heading" className="sr-only">Åtgärder</h2>
-          
+          {/* Result input for reps exercises */}
+          {station.type === 'reps' && (
+            <div className={styles.resultSection}>
+              <label className={styles.resultLabel}>
+                Att slå: <strong>{station.targetScore} {station.unit}</strong>
+              </label>
+              <div className={styles.resultInputWrapper}>
+                <button 
+                  className={styles.resultButton}
+                  onClick={handleDecrement}
+                  aria-label="Minska"
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  className={styles.resultInput}
+                  value={result}
+                  onChange={(e) => setResult(parseInt(e.target.value) || 0)}
+                  aria-label="Resultat"
+                />
+                <button 
+                  className={styles.resultButton}
+                  onClick={handleIncrement}
+                  aria-label="Öka"
+                >
+                  +
+                </button>
+              </div>
+              {showExtraReps && (
+                <div className={styles.extraRepsSection}>
+                  <strong>+ {extraReps} reps Bra jobbat!</strong>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Instructions */}
+          {activeTab === 'info' && station.instructions && (
+            <div className={styles.instructions}>
+              <h3>Instruktioner:</h3>
+              <ol>
+                {station.instructions.map((instruction, index) => (
+                  <li key={index}>{instruction}</li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {/* Learn content */}
+          {activeTab === 'learn' && (
+            <div className={styles.learnContent}>
+              <h3>Tips för {station.name}:</h3>
+              <ul>
+                <li>Fokusera på korrekt teknik</li>
+                <li>Andas jämnt genom övningen</li>
+                <li>Ta pauser om du behöver</li>
+              </ul>
+            </div>
+          )}
+
+          {/* Complete button */}
           <button
-            onClick={handleResultSubmit}
-            disabled={isSubmitting || !result.trim()}
-            className="primary-button"
-            aria-describedby="primary-button-help"
-            type="button"
+            onClick={handleCompleteStation}
+            disabled={isSubmitting || (station.type === 'timer' && time === 0)}
+            className={styles.completeButton}
           >
-            {isSubmitting 
-              ? 'Sparar...' 
-              : isLastStation 
-                ? 'Slutför runda' 
-                : 'Gå till nästa station'
-            }
+            {isSubmitting ? 'SPARAR...' : 'KLAR MED ÖVNING'}
           </button>
-          <div id="primary-button-help" className="button-help">
-            {!result.trim() ? 'Fyll i resultat för att aktivera knappen' : 
-             isLastStation ? 'Slutför rundan och se alla resultat' : 'Fortsätt till nästa övning'}
-          </div>
+        </main>
 
-          <div className="secondary-buttons">
-            <button
-              onClick={handleGoBack}
-              disabled={isSubmitting}
-              className="back-button"
-              type="button"
-              aria-describedby="back-button-help"
-            >
-              Tillbaka
-            </button>
-            <div id="back-button-help" className="button-help">
-              Gå tillbaka till föregående station
-            </div>
-            
-            <button
-              onClick={handleAbort}
-              disabled={isSubmitting}
-              className="abort-button"
-              type="button"
-              aria-describedby="abort-button-help"
-            >
-              Avbryt runda
-            </button>
-            <div id="abort-button-help" className="button-help">
-              Avbryt hela rundan och gå tillbaka till start
-            </div>
+        {/* Bottom stats */}
+        <div className={styles.bottomStats}>
+          <div className={styles.statItem}>
+            <div className={styles.statItemLabel}>Poäng</div>
+            <div className={styles.statItemValue}>{globalStats.totalPoints}p</div>
           </div>
-        </section>
-      </main>
-
-      {process.env.NODE_ENV === 'development' && (
-        <aside className="debug-info" aria-labelledby="debug-heading">
-          <h3 id="debug-heading">Debug Information</h3>
-          <pre aria-label="Debug data">
-            {JSON.stringify({ stationId, isLastStation, result, stats }, null, 2)}
-          </pre>
-        </aside>
-      )}
+          <div className={styles.statItem}>
+            <div className={styles.statItemLabel}>Distans</div>
+            <div className={styles.statItemValue}>{globalStats.distance} km</div>
+          </div>
+          <div className={styles.statItem}>
+            <div className={styles.statItemLabel}>Tid</div>
+            <div className={styles.statItemValue}>{formatGlobalTime(globalStats.totalTime)}</div>
+          </div>
+          <div className={styles.statItem}>
+            <div className={styles.statItemLabel}>Station</div>
+            <div className={styles.statItemValue}>{station.id}/4</div>
+          </div>
+        </div>
+      </div>
     </div>
-  );
-}
-
-// Exempel på hur man använder komponenten
-export function ExampleUsage() {
-  const router = useRouter();
-
-  const handleStationComplete = (action, data) => {
-    console.log('Station slutförd:', action, data);
-    
-    if (action === 'next') {
-      router.push(`/station/${parseInt(data.stationId) + 1}`);
-    } else if (action === 'complete') {
-      router.push('/results');
-    }
-  };
-
-  const handleAbort = () => {
-    router.push('/');
-  };
-
-  const exampleStationInfo = {
-    name: 'Armhävningar',
-    description: 'Gör så många armhävningar du kan på 2 minuter',
-    timeLimit: '2 minuter',
-    resultType: 'antal repetitioner',
-    instructions: [
-      'Börja i plankan position',
-      'Sänk kroppen tills bröstet nästan nuddar golvet',
-      'Pressa upp till startposition',
-      'Räkna varje fullständig repetition'
-    ]
-  };
-
-  return (
-    <StationPage
-      stationId="3"
-      stationInfo={exampleStationInfo}
-      isLastStation={false}
-      onStationComplete={handleStationComplete}
-      onAbort={handleAbort}
-    />
   );
 }
