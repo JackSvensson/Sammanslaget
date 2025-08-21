@@ -1,0 +1,205 @@
+/* home.module.css */
+
+/* Huvudcontainer */
+.homePage {
+    min-height: 100vh;
+    background: #f5f5f7;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+  }
+  
+  /* Mobilskärm container */
+  .phoneContainer {
+    max-width: 390px;
+    width: 100%;
+    min-height: 844px;
+    background: white;
+    position: relative;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    border-radius: 24px;
+    overflow: hidden;
+  }
+  
+  /* Status bar (tid, batteri etc) */
+  .statusBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: white;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 10;
+    position: relative;
+  }
+  
+  .statusBarTime {
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  
+  .statusBarIcons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  
+  /* Huvudinnehåll */
+  .mainContent {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Bakgrundsbild */
+  .backgroundImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+  
+  /* Innehållscontainer över bakgrunden */
+  .contentContainer {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 30px 24px 40px;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.1) 0%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0.4) 100%
+    );
+  }
+  
+  /* Logo sektion */
+  .logoSection {
+    margin-bottom: 40px;
+  }
+  
+  .appTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: #FF6B00;
+    margin: 0;
+    text-align: left;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Välkomstsektion */
+  .welcomeSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    margin: 60px 0;
+  }
+  
+  .welcomeTitle {
+    font-size: 32px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    line-height: 1.2;
+  }
+  
+  .welcomeText {
+    font-size: 18px;
+    font-weight: 400;
+    color: white;
+    line-height: 1.5;
+    margin: 0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    opacity: 0.95;
+  }
+  
+  /* Knappsektion */
+  .buttonSection {
+    margin-top: auto;
+  }
+  
+  .startButton {
+    width: 100%;
+    padding: 18px 20px;
+    background: #FF6B00;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+    letter-spacing: 0.5px;
+  }
+  
+  .startButton:hover {
+    background: #e55a00;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+  }
+  
+  .startButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
+  }
+  
+  /* Responsiv design för mobil */
+  @media (max-width: 430px) {
+    .homePage {
+      padding: 0;
+    }
+    
+    .phoneContainer {
+      max-width: 100%;
+      min-height: 100vh;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    
+    .contentContainer {
+      padding: 20px 20px 30px;
+    }
+    
+    .welcomeTitle {
+      font-size: 28px;
+    }
+    
+    .welcomeText {
+      font-size: 16px;
+    }
+    
+    .appTitle {
+      font-size: 22px;
+    }
+  }
+  
+  /* För mycket små skärmar */
+  @media (max-width: 360px) {
+    .welcomeTitle {
+      font-size: 24px;
+    }
+    
+    .welcomeText {
+      font-size: 15px;
+    }
+    
+    .contentContainer {
+      padding: 15px 16px 25px;
+    }
+  }
