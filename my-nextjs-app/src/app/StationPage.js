@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import styles from './StationPage.module.css';
 
-// Station data
+// Station data med korrekta bildnamn
 const STATIONS = [
   {
     id: 1,
@@ -12,10 +13,8 @@ const STATIONS = [
     type: 'reps',
     unit: 'st',
     description: 'Gör så många armhävningar du kan',
-    positions: [
-      { number: 70, description: 'Startposition' },
-      { number: 107, description: 'Nedre position' }
-    ],
+    image: '/exercises/pushup.svg',
+    hasPlayButton: true,
     instructions: [
       'Starta i plankan med raka armar',
       'Sänk kroppen tills bröstet nästan nuddar golvet',
@@ -29,7 +28,8 @@ const STATIONS = [
     type: 'timer',
     unit: 'sek',
     description: 'Håll positionen så länge du kan',
-    hasDualImage: true,
+    image: '/exercises/wallsit.svg',
+    hasPlayButton: false,
     instructions: [
       'Sitt med ryggen mot väggen',
       'Böj knäna i 90 graders vinkel',
@@ -43,6 +43,8 @@ const STATIONS = [
     type: 'reps',
     unit: 'st',
     description: 'Alternera mellan höger och vänster ben',
+    image: '/exercises/stepup.svg',
+    hasPlayButton: false,
     instructions: [
       'Ställ dig framför en bänk eller låda',
       'Steg upp med höger fot',
@@ -56,6 +58,8 @@ const STATIONS = [
     type: 'reps',
     unit: 'st',
     description: 'Fullständiga burpees med hopp',
+    image: '/exercises/burpees.svg',
+    hasPlayButton: true,
     instructions: [
       'Starta stående',
       'Gå ner i planka',
@@ -73,9 +77,8 @@ export default function StationPage({
 }) {
   const router = useRouter();
   const [station, setStation] = useState(null);
-  const [result, setResult] = useState(12); // Startvärde
+  const [result, setResult] = useState(12);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState('info');
   
   // Timer states för Jägarvila
   const [time, setTime] = useState(0);
@@ -177,6 +180,13 @@ export default function StationPage({
     setExtraReps(prev => prev + 2);
   };
 
+  useEffect(() => {
+    // Automatisk extra reps när man går över 10
+    if (result > 10 && !showExtraReps && station?.type === 'reps') {
+      handleExtraReps();
+    }
+  }, [result, showExtraReps, station]);
+
   if (!station) {
     return (
       <div className={styles.loading}>
@@ -211,49 +221,34 @@ export default function StationPage({
         <main className={styles.mainContent}>
           <h1 className={styles.stationTitle}>{station.name}</h1>
           
-          {/* Position badges för Armhävningar */}
-          {station.positions && (
-            <div className={styles.positionBadges}>
-              {station.positions.map((pos, index) => (
-                <div key={index} className={styles.positionBadge}>
-                  {pos.number}
-                </div>
-              ))}
-            </div>
-          )}
-          
           <div className={styles.exerciseType}>{station.description}</div>
 
           {/* Övningsbild */}
-          <div className={`${styles.exerciseIllustration} ${station.hasDualImage ? styles.dual : ''}`}>
-            {station.hasDualImage ? (
-              <>
-                <div className={styles.exerciseImage}>👤</div>
-                <div className={styles.exerciseImage}>👤</div>
-              </>
-            ) : (
-              <>
-                <div className={styles.exerciseImage}>👤</div>
+          <div className={styles.exerciseIllustration}>
+            <div className={styles.exerciseImageWrapper}>
+              {station.image && (
+                <Image 
+                  src={station.image} 
+                  alt={station.name}
+                  width={200}
+                  height={200}
+                  className={styles.exerciseImage}
+                />
+              )}
+              {station.hasPlayButton && (
                 <button className={styles.playButton} aria-label="Spela övningsanimation">
                   ▶
                 </button>
-              </>
-            )}
+              )}
+            </div>
           </div>
 
-          {/* Info/Lär tabs */}
+          {/* Info knapp */}
           <div className={styles.infoButtons}>
             <button 
-              className={`${styles.infoButton} ${activeTab === 'info' ? styles.active : styles.inactive}`}
-              onClick={() => setActiveTab('info')}
+              className={`${styles.infoButton} ${styles.active}`}
             >
               Info
-            </button>
-            <button 
-              className={`${styles.infoButton} ${activeTab === 'learn' ? styles.active : styles.inactive}`}
-              onClick={() => setActiveTab('learn')}
-            >
-              Lär
             </button>
           </div>
 
@@ -293,49 +288,35 @@ export default function StationPage({
               <label className={styles.resultLabel}>
                 Att slå: <strong>10 {station.unit}</strong>
               </label>
-              <div className={styles.resultInputWrapper}>
-                <div className={styles.resultControls}>
-                  <button 
-                    className={styles.resultButton}
-                    onClick={handleDecrement}
-                    aria-label="Minska"
-                  >
-                    -
-                  </button>
+              <div className={styles.resultInputContainer}>
+                <button 
+                  className={styles.resultButton}
+                  onClick={handleDecrement}
+                  aria-label="Minska"
+                >
+                  -
+                </button>
+                <div className={styles.resultDisplay}>
+                  {result}
                 </div>
-                <input
-                  type="number"
-                  className={styles.resultInput}
-                  value={result}
-                  onChange={(e) => setResult(parseInt(e.target.value) || 0)}
-                  aria-label="Resultat"
-                />
-                <div className={styles.resultControls}>
-                  <button 
-                    className={styles.resultButton}
-                    onClick={handleIncrement}
-                    aria-label="Öka"
-                  >
-                    +
-                  </button>
-                </div>
+                <button 
+                  className={styles.resultButton}
+                  onClick={handleIncrement}
+                  aria-label="Öka"
+                >
+                  +
+                </button>
               </div>
               {showExtraReps && (
                 <div className={styles.extraRepsSection}>
                   <strong>+ {extraReps} reps Bra jobbat!</strong>
                 </div>
               )}
-              {result > 10 && !showExtraReps && (
-                <button onClick={handleExtraReps} style={{display: 'none'}}>
-                  {/* Triggas automatiskt när man går över 10 */}
-                  {setTimeout(() => handleExtraReps(), 500)}
-                </button>
-              )}
             </div>
           )}
 
           {/* Instruktioner */}
-          {activeTab === 'info' && station.instructions && (
+          {station.instructions && (
             <div className={styles.instructions}>
               <ol>
                 {station.instructions.map((instruction, index) => (
@@ -353,27 +334,27 @@ export default function StationPage({
           >
             {isSubmitting ? 'SPARAR...' : 'KLAR MED ÖVNING'}
           </button>
-        </main>
 
-        {/* Bottenmeny med stats */}
-        <div className={styles.bottomStats}>
-          <div className={styles.statItem}>
-            <div className={styles.statItemLabel}>Poäng</div>
-            <div className={styles.statItemValue}>0p</div>
+          {/* Bottenmeny med stats */}
+          <div className={styles.bottomStats}>
+            <div className={styles.statItem}>
+              <div className={styles.statItemLabel}>Poäng</div>
+              <div className={styles.statItemValue}>0p</div>
+            </div>
+            <div className={styles.statItem}>
+              <div className={styles.statItemLabel}>Distans</div>
+              <div className={styles.statItemValue}>2,5 km</div>
+            </div>
+            <div className={styles.statItem}>
+              <div className={styles.statItemLabel}>Tid</div>
+              <div className={styles.statItemValue}>05:03</div>
+            </div>
+            <div className={styles.statItem}>
+              <div className={styles.statItemLabel}>Station</div>
+              <div className={styles.statItemValue}>{station.id}/4</div>
+            </div>
           </div>
-          <div className={styles.statItem}>
-            <div className={styles.statItemLabel}>Distans</div>
-            <div className={styles.statItemValue}>2,3 km</div>
-          </div>
-          <div className={styles.statItem}>
-            <div className={styles.statItemLabel}>Tid</div>
-            <div className={styles.statItemValue}>05:03</div>
-          </div>
-          <div className={styles.statItem}>
-            <div className={styles.statItemLabel}>Station</div>
-            <div className={styles.statItemValue}>{station.id}/4</div>
-          </div>
-        </div>
+        </main>
       </div>
     </div>
   );
