@@ -5,22 +5,81 @@ import dynamic from "next/dynamic";
 import styles from "./startRoute.module.css";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
 export default function StartRoutePage({ params }) {
   const { id } = React.use(params);
   const route = routes.find((r) => r.id.toString() === id);
+  const router = useRouter();
 
   const [seconds, setSeconds] = useState(0);
+  const [nextStationIndex, setNextStationIndex] = useState(0);
+  const [completedStations, setCompletedStations] = useState([]);
+
+  useEffect(() => {
+    if (!route) return;
+
+    localStorage.setItem("currentRoute", route.id);
+
+    const storedNextStation = localStorage.getItem("nextStation");
+
+    if (storedNextStation === "done") {
+      setNextStationIndex(route.stations.length);
+    } else if (storedNextStation === "last") {
+      setNextStationIndex(route.stations.length - 1);
+    } else {
+      const index = route.stations.findIndex(
+        (s) => s.id === parseInt(storedNextStation || route.stations[0].id, 10)
+      );
+      setNextStationIndex(index >= 0 ? index : 0);
+    }
+
+    const storedTime = parseInt(localStorage.getItem("currentTime") || "0", 10);
+    setSeconds(storedTime);
+
+    const storedCompleted = JSON.parse(
+      localStorage.getItem("completedStations") || "[]"
+    );
+    setCompletedStations(storedCompleted);
+  }, [route]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setSeconds((prev) => prev + 1);
+      setSeconds((prev) => {
+        const newTime = prev + 1;
+        localStorage.setItem("currentTime", newTime);
+        return newTime;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
   }, []);
+
+  const handleGoToStation = () => {
+    if (nextStationIndex >= route.stations.length) {
+      localStorage.removeItem("nextStation");
+      localStorage.removeItem("currentRoute");
+      router.push("/results");
+      return;
+    }
+
+    const currentIndex = nextStationIndex;
+    const currentStationId = route.stations[currentIndex]?.id;
+    if (!currentStationId) return;
+
+    const nextIndex = currentIndex + 1;
+    if (nextIndex < route.stations.length) {
+      setNextStationIndex(nextIndex);
+      localStorage.setItem("nextStation", route.stations[nextIndex].id);
+    } else {
+      setNextStationIndex(nextIndex);
+      localStorage.setItem("nextStation", "done");
+    }
+
+    router.push(`/station/${currentStationId}`);
+  };
 
   const formatTime = (secs) => {
     const minutes = Math.floor(secs / 60)
@@ -36,17 +95,18 @@ export default function StartRoutePage({ params }) {
     <main className={styles.main}>
       <h1 className={styles.title}>LindMotion</h1>
       <h2 className={styles.mapTitle}>{route.name}</h2>
+
       <div className={styles.mapWrapper}>
         <h2 className={styles.mapRouteName}>
           <Image
-            src={"/running.svg"}
+            src={"/Running.svg"}
             height={25}
             width={25}
             alt="running person"
           />
           {route.name}
         </h2>
-        <Map path={route.path} stations={route.stations} />
+        <Map path={route.path} stations={route.stations} start={route.start} />
         <div className={styles.routeInfo}>
           <p>
             <small>Distans</small>
@@ -58,25 +118,45 @@ export default function StartRoutePage({ params }) {
           </p>
         </div>
       </div>
+
       <div className={styles.stationListWrapper}>
         <ul className={styles.stationList}>
-          {route.stations.map((s, i) => (
-            <li key={i} className={styles.stationInfo}>
-              <Image
-                src={"/location-mark.svg"}
-                height={30}
-                width={30}
-                alt="Route Icon"
-              />
-              <p className={styles.stationText}>
-                {s.name}
-                <small>Station {s.id}</small>
-              </p>
-            </li>
-          ))}
+          {route.stations.map((s, i) => {
+            const isCompleted = completedStations.includes(s.id);
+            return (
+              <li key={i} className={styles.stationInfoContainer}>
+                <div className={styles.stationInfo}>
+                  <Image
+                    src={"/location-mark.svg"}
+                    height={30}
+                    width={30}
+                    alt="Route Icon"
+                  />
+                  <p className={styles.stationText}>
+                    {s.name}
+                    <small>Station {s.id}</small>
+                  </p>
+                </div>
+                {isCompleted && (
+                  <Image
+                    src={"/checkmark.svg"}
+                    height={30}
+                    width={30}
+                    alt="checkmark"
+                  />
+                )}
+              </li>
+            );
+          })}
         </ul>
       </div>
-      <button className={styles.stationButton}>Framme vid Station</button>
+
+      <button className={styles.stationButton} onClick={handleGoToStation}>
+        {nextStationIndex >= route.stations.length
+          ? "Avsluta Rutt"
+          : "Framme vid Station"}
+      </button>
+
       <div className={styles.statContainer}>
         <p className={styles.statText}>
           <small>Tid:</small>

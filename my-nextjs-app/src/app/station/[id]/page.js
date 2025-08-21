@@ -1,35 +1,39 @@
-// src/app/station/[id]/page.js
 "use client";
 
-import { useParams, useRouter } from 'next/navigation';
-import StationPage from '../../StationPage';
+import { useParams, useRouter } from "next/navigation";
+import StationPage from "../../StationPage";
 
 export default function StationRoute() {
   const params = useParams();
   const router = useRouter();
-  const stationId = params.id;
+  const stationId = parseInt(params.id);
 
-  const handleStationComplete = (stationResult, isLastStation) => {
-    console.log('Station slutförd:', stationResult);
-    
-    if (isLastStation) {
-      // Navigera till resultat
-      router.push('/results');
-    } else {
-      // Gå till nästa station
-      const nextStation = parseInt(stationId) + 1;
-      router.push(`/station/${nextStation}`);
+  const handleStationComplete = (stationResult) => {
+    console.log("Station slutförd:", stationResult);
+    const routeId = localStorage.getItem("currentRoute");
+
+    let completedStations = JSON.parse(
+      localStorage.getItem("completedStations") || "[]"
+    );
+
+    if (!completedStations.includes(stationId)) {
+      completedStations.push(stationId);
     }
+
+    localStorage.setItem(
+      "completedStations",
+      JSON.stringify(completedStations)
+    );
+
+    router.push(`/startRoute/${routeId}`);
   };
 
   const handleAbort = () => {
-    const confirmed = confirm('Är du säker på att du vill avbryta rundan?');
+    const confirmed = confirm("Är du säker på att du vill avbryta rundan?");
     if (confirmed) {
-      // Rensa localStorage
-      localStorage.removeItem('stationResults');
-      localStorage.removeItem('globalStats');
-      // Gå tillbaka till start
-      router.push('/');
+      localStorage.removeItem("nextStation");
+      localStorage.removeItem("currentRoute");
+      router.push("/");
     }
   };
 

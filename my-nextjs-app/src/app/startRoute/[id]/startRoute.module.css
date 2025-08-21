@@ -110,10 +110,18 @@
     flex-direction: column;
 }
 
-.stationInfo {
+.stationInfoContainer {
     display: flex;
     gap: 0.5rem;
+    justify-content: space-between;
+    padding: 0.25rem 1rem;
     align-items: center;
+}
+
+.stationInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .stationText {
