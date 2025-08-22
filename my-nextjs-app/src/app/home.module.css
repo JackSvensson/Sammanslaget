@@ -1,5 +1,3 @@
-/* home.module.css */
-
 /* Huvudcontainer */
 .homePage {
     min-height: 100vh;
@@ -16,7 +14,7 @@
     max-width: 390px;
     width: 100%;
     min-height: 844px;
-    background: white;
+    background: #f5f5f7;
     position: relative;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -31,7 +29,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    background: white;
+    background: #f5f5f7;
     font-size: 14px;
     font-weight: 600;
     z-index: 10;
@@ -57,13 +55,13 @@
     flex-direction: column;
   }
   
-  /* Bakgrundsbild */
+  /* Bakgrundsbild - Bottom positioned, full width, 50% height */
   .backgroundImage {
     position: absolute;
-    top: 100%;
+    bottom: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 50%;
     z-index: 1;
   }
   
@@ -76,12 +74,7 @@
     flex-direction: column;
     justify-content: space-between;
     padding: 30px 24px 40px;
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.1) 0%,
-      rgba(0, 0, 0, 0.2) 50%,
-      rgba(0, 0, 0, 0.4) 100%
-    );
+    background: transparent;
   }
   
   /* Logo sektion */
@@ -111,20 +104,20 @@
   .welcomeTitle {
     font-size: 32px;
     font-weight: 700;
-    color: white;
+    color: #1a1a1a;
     margin-bottom: 20px;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    text-shadow: none;
     line-height: 1.2;
   }
   
   .welcomeText {
     font-size: 18px;
     font-weight: 400;
-    color: white;
+    color: #666;
     line-height: 1.5;
     margin: 0;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-    opacity: 0.95;
+    text-shadow: none;
+    opacity: 1;
   }
   
   /* Knappsektion */
@@ -187,6 +180,8 @@
     .appTitle {
       font-size: 22px;
     }
+
+    /* Remove mobile background image adjustments since we want full width */
   }
   
   /* För mycket små skärmar */
@@ -202,4 +197,6 @@
     .contentContainer {
       padding: 15px 16px 25px;
     }
+
+    /* Background image stays full width on small screens */
   }
