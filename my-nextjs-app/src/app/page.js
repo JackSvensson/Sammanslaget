@@ -41,6 +41,18 @@ export default function Home() {
             {/* Välkomstsektion */}
             <div className={styles.welcomeSection}>
               <h2 className={styles.welcomeTitle}>Välkommen!</h2>
+              
+              {/* Utmaningar image */}
+              <div className={styles.challengesImageContainer}>
+                <Image 
+                  src="/exercises/utmaningar.svg"
+                  alt="Utmaningar"
+                  width={320}
+                  height={320}
+                  priority
+                />
+              </div>
+              
               <p className={styles.welcomeText}>
                 Träna dina favoritövningar för en starkare kropp, på vackra Lindholmen.
               </p>

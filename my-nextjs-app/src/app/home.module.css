@@ -79,7 +79,7 @@
   
   /* Logo sektion */
   .logoSection {
-    margin-bottom: 40px;
+    margin-bottom: 20px;
   }
   
   .appTitle {
@@ -96,28 +96,42 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     text-align: center;
-    margin: 60px 0;
+    margin: 20px 0 60px 0;
+    padding-top: 40px;
+    position: relative;
   }
   
   .welcomeTitle {
     font-size: 32px;
     font-weight: 700;
     color: #1a1a1a;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     text-shadow: none;
     line-height: 1.2;
   }
+
+  /* Utmaningar image container */
+  .challengesImageContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
   
   .welcomeText {
-    font-size: 18px;
+    font-size: 25px;
     font-weight: 400;
-    color: #666;
+    color: #FFF;
     line-height: 1.5;
     margin: 0;
-    text-shadow: none;
-    opacity: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    padding: 0 20px;
+    position: absolute;
+    bottom: 90px;
+    left: 0;
+    right: 0;
+    z-index: 3;
   }
   
   /* Knappsektion */
@@ -174,14 +188,18 @@
     }
     
     .welcomeText {
-      font-size: 16px;
+      font-size: 22px;
+      bottom: 80px;
+      padding: 0 15px;
     }
     
     .appTitle {
       font-size: 22px;
     }
 
-    /* Remove mobile background image adjustments since we want full width */
+    .welcomeSection {
+      padding-top: 20px;
+    }
   }
   
   /* För mycket små skärmar */
@@ -191,12 +209,16 @@
     }
     
     .welcomeText {
-      font-size: 15px;
+      font-size: 20px;
+      bottom: 70px;
+      padding: 0 12px;
     }
     
     .contentContainer {
       padding: 15px 16px 25px;
     }
 
-    /* Background image stays full width on small screens */
+    .welcomeSection {
+      padding-top: 15px;
+    }
   }
