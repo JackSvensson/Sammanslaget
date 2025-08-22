@@ -24,7 +24,6 @@ export default function StartRoutePage({ params }) {
 
     localStorage.setItem("currentRoute", route.id);
 
-    // Kolla om detta är en ny runda eller fortsättning
     const storedNextStation = localStorage.getItem("nextStation");
     const storedTime = parseInt(localStorage.getItem("currentTime") || "0", 10);
     const storedCompleted = JSON.parse(
@@ -34,9 +33,7 @@ export default function StartRoutePage({ params }) {
       localStorage.getItem("currentStats") || '{"points": 0, "time": 0}'
     );
 
-    // Om det inte finns någon sparad session, starta ny
     if (!storedNextStation || storedNextStation === "done") {
-      // Ny runda - rensa gamla data och starta om
       localStorage.setItem("currentTime", "0");
       localStorage.setItem("nextStation", route.stations[0].id.toString());
       localStorage.setItem("completedStations", "[]");
@@ -48,7 +45,6 @@ export default function StartRoutePage({ params }) {
       setCompletedStations([]);
       setTotalPoints(0);
     } else {
-      // Fortsätt befintlig session
       if (storedNextStation === "last") {
         setNextStationIndex(route.stations.length - 1);
       } else {
@@ -71,7 +67,6 @@ export default function StartRoutePage({ params }) {
         const newTime = prev + 1;
         localStorage.setItem("currentTime", newTime.toString());
 
-        // Uppdatera också stats
         const currentStats = JSON.parse(
           localStorage.getItem("currentStats") || '{"points": 0, "time": 0}'
         );
@@ -85,7 +80,6 @@ export default function StartRoutePage({ params }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Uppdatera poäng från localStorage
   useEffect(() => {
     const updatePoints = () => {
       const currentStats = JSON.parse(
@@ -94,7 +88,6 @@ export default function StartRoutePage({ params }) {
       setTotalPoints(currentStats.points);
     };
 
-    // Lyssna på localStorage ändringar (för när man kommer tillbaka från station)
     const handleStorageChange = () => {
       updatePoints();
       const storedCompleted = JSON.parse(
@@ -105,7 +98,6 @@ export default function StartRoutePage({ params }) {
 
     window.addEventListener("storage", handleStorageChange);
 
-    // Kolla även när komponenten får fokus (för när man navigerar tillbaka)
     window.addEventListener("focus", updatePoints);
 
     return () => {
@@ -115,12 +107,10 @@ export default function StartRoutePage({ params }) {
   }, []);
 
   const handleGoToStation = () => {
-    // Kolla först om alla 4 stationer är klara
     if (
       completedStations.length >= 4 ||
       nextStationIndex >= route.stations.length
     ) {
-      // Alla stationer klara - gå till resultat
       localStorage.setItem("nextStation", "done");
       router.push("/results");
       return;
@@ -130,7 +120,6 @@ export default function StartRoutePage({ params }) {
     const currentStationId = route.stations[currentIndex]?.id;
     if (!currentStationId) return;
 
-    // Uppdatera vad som är nästa station
     const nextIndex = currentIndex + 1;
     if (nextIndex < route.stations.length) {
       setNextStationIndex(nextIndex);
@@ -155,7 +144,6 @@ export default function StartRoutePage({ params }) {
   };
 
   const getDistance = () => {
-    // Hämta från rutt-data eller beräkna baserat på genomförda stationer
     return route?.distance || "2,5 km";
   };
 
