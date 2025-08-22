@@ -203,7 +203,7 @@
 }
 
 /* För mycket små skärmar */
-@media (max-width: 376px) {
+@media (max-width: 390px) {
   .welcomeTitle {
     font-size: 22px;
   }
