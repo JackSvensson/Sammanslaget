@@ -58,7 +58,7 @@
 /* Bakgrundsbild - Bottom positioned, full width, 50% height */
 .backgroundImage {
   position: absolute;
-  bottom: -20;
+  bottom: 0;
   left: 0;
   width: 100%;
   height: 50%;
@@ -206,10 +206,6 @@
 @media (max-width: 376px) {
   .welcomeTitle {
     font-size: 22px;
-  }
-
-  .backgroundImage {
-    bottom: -70;
   }
 
   .welcomeText {
