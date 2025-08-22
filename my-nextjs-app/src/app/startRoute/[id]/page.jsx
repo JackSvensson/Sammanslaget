@@ -27,8 +27,12 @@ export default function StartRoutePage({ params }) {
     // Kolla om detta är en ny runda eller fortsättning
     const storedNextStation = localStorage.getItem("nextStation");
     const storedTime = parseInt(localStorage.getItem("currentTime") || "0", 10);
-    const storedCompleted = JSON.parse(localStorage.getItem("completedStations") || "[]");
-    const storedStats = JSON.parse(localStorage.getItem('currentStats') || '{"points": 0, "time": 0}');
+    const storedCompleted = JSON.parse(
+      localStorage.getItem("completedStations") || "[]"
+    );
+    const storedStats = JSON.parse(
+      localStorage.getItem("currentStats") || '{"points": 0, "time": 0}'
+    );
 
     // Om det inte finns någon sparad session, starta ny
     if (!storedNextStation || storedNextStation === "done") {
@@ -36,9 +40,9 @@ export default function StartRoutePage({ params }) {
       localStorage.setItem("currentTime", "0");
       localStorage.setItem("nextStation", route.stations[0].id.toString());
       localStorage.setItem("completedStations", "[]");
-      localStorage.setItem('currentStats', '{"points": 0, "time": 0}');
-      localStorage.removeItem('stationResults');
-      
+      localStorage.setItem("currentStats", '{"points": 0, "time": 0}');
+      localStorage.removeItem("stationResults");
+
       setSeconds(0);
       setNextStationIndex(0);
       setCompletedStations([]);
@@ -49,7 +53,8 @@ export default function StartRoutePage({ params }) {
         setNextStationIndex(route.stations.length - 1);
       } else {
         const index = route.stations.findIndex(
-          (s) => s.id === parseInt(storedNextStation || route.stations[0].id, 10)
+          (s) =>
+            s.id === parseInt(storedNextStation || route.stations[0].id, 10)
         );
         setNextStationIndex(index >= 0 ? index : 0);
       }
@@ -65,12 +70,14 @@ export default function StartRoutePage({ params }) {
       setSeconds((prev) => {
         const newTime = prev + 1;
         localStorage.setItem("currentTime", newTime.toString());
-        
+
         // Uppdatera också stats
-        const currentStats = JSON.parse(localStorage.getItem('currentStats') || '{"points": 0, "time": 0}');
+        const currentStats = JSON.parse(
+          localStorage.getItem("currentStats") || '{"points": 0, "time": 0}'
+        );
         currentStats.time = newTime;
-        localStorage.setItem('currentStats', JSON.stringify(currentStats));
-        
+        localStorage.setItem("currentStats", JSON.stringify(currentStats));
+
         return newTime;
       });
     }, 1000);
@@ -81,31 +88,38 @@ export default function StartRoutePage({ params }) {
   // Uppdatera poäng från localStorage
   useEffect(() => {
     const updatePoints = () => {
-      const currentStats = JSON.parse(localStorage.getItem('currentStats') || '{"points": 0, "time": 0}');
+      const currentStats = JSON.parse(
+        localStorage.getItem("currentStats") || '{"points": 0, "time": 0}'
+      );
       setTotalPoints(currentStats.points);
     };
 
     // Lyssna på localStorage ändringar (för när man kommer tillbaka från station)
     const handleStorageChange = () => {
       updatePoints();
-      const storedCompleted = JSON.parse(localStorage.getItem("completedStations") || "[]");
+      const storedCompleted = JSON.parse(
+        localStorage.getItem("completedStations") || "[]"
+      );
       setCompletedStations(storedCompleted);
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    
+    window.addEventListener("storage", handleStorageChange);
+
     // Kolla även när komponenten får fokus (för när man navigerar tillbaka)
-    window.addEventListener('focus', updatePoints);
-    
+    window.addEventListener("focus", updatePoints);
+
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('focus', updatePoints);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("focus", updatePoints);
     };
   }, []);
 
   const handleGoToStation = () => {
     // Kolla först om alla 4 stationer är klara
-    if (completedStations.length >= 4 || nextStationIndex >= route.stations.length) {
+    if (
+      completedStations.length >= 4 ||
+      nextStationIndex >= route.stations.length
+    ) {
       // Alla stationer klara - gå till resultat
       localStorage.setItem("nextStation", "done");
       router.push("/results");
@@ -120,7 +134,10 @@ export default function StartRoutePage({ params }) {
     const nextIndex = currentIndex + 1;
     if (nextIndex < route.stations.length) {
       setNextStationIndex(nextIndex);
-      localStorage.setItem("nextStation", route.stations[nextIndex].id.toString());
+      localStorage.setItem(
+        "nextStation",
+        route.stations[nextIndex].id.toString()
+      );
     } else {
       setNextStationIndex(nextIndex);
       localStorage.setItem("nextStation", "done");
@@ -145,89 +162,101 @@ export default function StartRoutePage({ params }) {
   if (!route) return <p>Rutt ej hittad</p>;
 
   return (
-    <main className={styles.main}>
-      <h1 className={styles.title}>LindMotion</h1>
-      <h2 className={styles.mapTitle}>{route.name}</h2>
+    <>
+      <header className={styles.appHeader}>
+        <h1 className={styles.appLogo}>LindMotion</h1>
+      </header>
+      <main className={styles.main}>
+        <h2 className={styles.mapTitle}>{route.name}</h2>
 
-      <div className={styles.mapWrapper}>
-        <h2 className={styles.mapRouteName}>
-          <Image
-            src={"/Running.svg"}
-            height={25}
-            width={25}
-            alt="running person"
+        <div className={styles.mapWrapper}>
+          <h2 className={styles.mapRouteName}>
+            <Image
+              src={"/Running.svg"}
+              height={25}
+              width={25}
+              alt="running person"
+            />
+            {route.name}
+          </h2>
+          <Map
+            path={route.path}
+            stations={route.stations}
+            start={route.start}
           />
-          {route.name}
-        </h2>
-        <Map path={route.path} stations={route.stations} start={route.start} />
-        <div className={styles.routeInfo}>
-          <p>
-            <small>Distans</small>
-            {route.distance}
-          </p>
-          <p>
-            <small>Tid</small>
-            {route.time}
-          </p>
+          <div className={styles.routeInfo}>
+            <p>
+              <small>Distans</small>
+              {route.distance}
+            </p>
+            <p>
+              <small>Tid</small>
+              {route.time}
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div className={styles.stationListWrapper}>
-        <ul className={styles.stationList}>
-          {route.stations.map((s, i) => {
-            const isCompleted = completedStations.includes(s.id);
-            const isCurrent = i === nextStationIndex && !isCompleted;
-            return (
-              <li key={i} className={`${styles.stationInfoContainer} ${isCurrent ? styles.currentStation : ''}`}>
-                <div className={styles.stationInfo}>
-                  <Image
-                    src={"/location-mark.svg"}
-                    height={30}
-                    width={30}
-                    alt="Route Icon"
-                  />
-                  <p className={styles.stationText}>
-                    {s.name}
-                    <small>Station {s.id}</small>
-                  </p>
-                </div>
-                {isCompleted && (
-                  <Image
-                    src={"/checkmark.svg"}
-                    height={30}
-                    width={30}
-                    alt="checkmark"
-                  />
-                )}
-                {isCurrent && (
-                  <div className={styles.currentMarker}>→</div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+        <div className={styles.stationListWrapper}>
+          <ul className={styles.stationList}>
+            {route.stations.map((s, i) => {
+              const isCompleted = completedStations.includes(s.id);
+              const isCurrent = i === nextStationIndex && !isCompleted;
+              return (
+                <li
+                  key={i}
+                  className={`${styles.stationInfoContainer} ${
+                    isCurrent ? styles.currentStation : ""
+                  }`}
+                >
+                  <div className={styles.stationInfo}>
+                    <Image
+                      src={"/location-mark.svg"}
+                      height={30}
+                      width={30}
+                      alt="Route Icon"
+                    />
+                    <p className={styles.stationText}>
+                      {s.name}
+                      <small>Station {s.id}</small>
+                    </p>
+                  </div>
+                  {isCompleted && (
+                    <Image
+                      src={"/checkmark.svg"}
+                      height={30}
+                      width={30}
+                      alt="checkmark"
+                    />
+                  )}
+                  {isCurrent && <div className={styles.currentMarker}>→</div>}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
 
-      <button className={styles.stationButton} onClick={handleGoToStation}>
-        {completedStations.length >= 4 || nextStationIndex >= route.stations.length
-          ? "Visa Resultat"
-          : "Framme vid Station"}
-      </button>
+        <button className={styles.stationButton} onClick={handleGoToStation}>
+          {completedStations.length >= 4 ||
+          nextStationIndex >= route.stations.length
+            ? "Visa Resultat"
+            : "Framme vid Station"}
+        </button>
 
-      <div className={styles.statContainer}>
-        <div className={styles.statItem}>
-          <small>Poäng:</small>
-          <span>{totalPoints}p</span>
+        <div className={styles.statContainer}>
+          <div className={styles.statItem}>
+            <small>Poäng:</small>
+            <span>{totalPoints}p</span>
+          </div>
+          <div className={styles.statItem}>
+            <small>Distans:</small>
+            <span>{getDistance()}</span>
+          </div>
+          <div className={styles.statItem}>
+            <small>Tid:</small>
+            <span>{formatTime(seconds)}</span>
+          </div>
         </div>
-        <div className={styles.statItem}>
-          <small>Distans:</small>
-          <span>{getDistance()}</span>
-        </div>
-        <div className={styles.statItem}>
-          <small>Tid:</small>
-          <span>{formatTime(seconds)}</span>
-        </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
