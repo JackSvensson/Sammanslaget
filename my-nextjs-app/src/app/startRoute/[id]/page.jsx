@@ -223,8 +223,8 @@ export default function StartRoutePage({ params }) {
                   {isCompleted && (
                     <Image
                       src={"/checkmark.svg"}
-                      height={30}
-                      width={30}
+                      height={20}
+                      width={20}
                       alt="checkmark"
                     />
                   )}
