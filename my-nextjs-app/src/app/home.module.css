@@ -205,13 +205,18 @@
   /* För mycket små skärmar */
   @media (max-width: 360px) {
     .welcomeTitle {
-      font-size: 24px;
+      font-size: 22px;
+      margin-bottom: 25px;
     }
     
     .welcomeText {
       font-size: 20px;
       bottom: 70px;
       padding: 0 12px;
+    }
+
+    .challengesImageContainer {
+      margin-bottom: 30px;
     }
     
     .contentContainer {
