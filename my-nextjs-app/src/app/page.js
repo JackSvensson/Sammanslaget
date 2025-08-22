@@ -19,6 +19,7 @@ export default function Home() {
         
         {/* Huvudinnehåll med bakgrundsbild */}
         <main className={styles.mainContent}>
+          
           {/* Bakgrundsbild */}
           <div className={styles.backgroundImage}>
             <Image 
