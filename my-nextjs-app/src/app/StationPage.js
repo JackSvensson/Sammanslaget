@@ -81,7 +81,7 @@ export default function StationPage({
 }) {
   const router = useRouter();
   const [station, setStation] = useState(null);
-  const [result, setResult] = useState(12);
+  const [result, setResult] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   
