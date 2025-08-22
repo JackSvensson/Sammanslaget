@@ -22,7 +22,7 @@ export default function Home() {
           {/* Bakgrundsbild */}
           <div className={styles.backgroundImage}>
             <Image 
-              src="/exercises/start.svg"
+              src="/exercises/Start.svg"
               alt="Träningsbakgrund"
               fill
               style={{ objectFit: 'cover' }}
