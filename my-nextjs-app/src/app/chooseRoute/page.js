@@ -14,75 +14,79 @@ export default function ChooseRoute() {
   const router = useRouter();
 
   return (
-    <main className={styles.main}>
-      <h1 className={styles.title}>LindMotion</h1>
-      <h2 className={styles.mapTitle}>Välj träningsrutt</h2>
-      {selectedRoute && (
-        <div className={styles.mapWrapper}>
-          <h2 className={styles.mapRouteName}>
-            <Image
-              src={"/Running.svg"}
-              height={25}
-              width={25}
-              alt="running person"
+    <>
+      <header className={styles.appHeader}>
+        <h1 className={styles.appLogo}>LindMotion</h1>
+      </header>
+      <main className={styles.main}>
+        <h2 className={styles.mapTitle}>Välj träningsrutt</h2>
+        {selectedRoute && (
+          <div className={styles.mapWrapper}>
+            <h2 className={styles.mapRouteName}>
+              <Image
+                src={"/Running.svg"}
+                height={25}
+                width={25}
+                alt="running person"
+              />
+              {selectedRoute.name}
+            </h2>
+            <Map
+              path={selectedRoute.path}
+              stations={selectedRoute.stations}
+              start={selectedRoute.start}
             />
-            {selectedRoute.name}
-          </h2>
-          <Map
-            path={selectedRoute.path}
-            stations={selectedRoute.stations}
-            start={selectedRoute.start}
-          />
-          <div className={styles.routeInfo}>
-            <p>
-              <small>Distans</small>
-              {selectedRoute.distance}
-            </p>
-            <p>
-              <small>Tid</small>
-              {selectedRoute.time}
-            </p>
+            <div className={styles.routeInfo}>
+              <p>
+                <small>Distans</small>
+                {selectedRoute.distance}
+              </p>
+              <p>
+                <small>Tid</small>
+                {selectedRoute.time}
+              </p>
+            </div>
           </div>
+        )}
+        <div className={styles.routeListWrapper}>
+          <ul className={styles.routeList}>
+            {routes.map((r) => (
+              <li key={r.id}>
+                <button
+                  onClick={() => setSelectedRoute(r)}
+                  className={styles.routeButton}
+                >
+                  <div className={styles.routeTextContainer}>
+                    <Image
+                      src={"/route-icon.svg"}
+                      height={35}
+                      width={35}
+                      alt="Route Icon"
+                    />
+                    <p className={styles.routeText}>{r.name}</p>
+                  </div>
+                  <div className={styles.routeDistanceTime}>
+                    <p className={styles.routeText}>{r.distance}</p>
+                    <small className={styles.routeTime}>Cirka {r.time}</small>
+                  </div>
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
-      )}
-      <div className={styles.routeListWrapper}>
-        <ul className={styles.routeList}>
-          {routes.map((r) => (
-            <li key={r.id}>
-              <button
-                onClick={() => setSelectedRoute(r)}
-                className={styles.routeButton}
-              >
-                <div className={styles.routeTextContainer}>
-                  <Image
-                    src={"/route-icon.svg"}
-                    height={35}
-                    width={35}
-                    alt="Route Icon"
-                  />
-                  <p className={styles.routeText}>{r.name}</p>
-                </div>
-                <div className={styles.routeDistanceTime}>
-                  <p className={styles.routeText}>{r.distance}</p>
-                  <small className={styles.routeTime}>Cirka {r.time}</small>
-                </div>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <button
-        className={styles.startButton}
-        onClick={() => {
-          localStorage.setItem("currentRoute", selectedRoute.id);
-          localStorage.setItem("nextStation", selectedRoute.stations[0].id); // Ändrat
-          localStorage.setItem("currentTime", "0");
-          localStorage.setItem("completedStations", JSON.stringify([]));
-          router.push(`/startRoute/${selectedRoute.id}`);
-        }}
-      >
-        Starta Rutten
-      </button>
-    </main>
+        <button
+          className={styles.startButton}
+          onClick={() => {
+            localStorage.setItem("currentRoute", selectedRoute.id);
+            localStorage.setItem("nextStation", selectedRoute.stations[0].id); // Ändrat
+            localStorage.setItem("currentTime", "0");
+            localStorage.setItem("completedStations", JSON.stringify([]));
+            router.push(`/startRoute/${selectedRoute.id}`);
+          }}
+        >
+          Starta Rutten
+        </button>
+      </main>
+    </>
   );
 }
